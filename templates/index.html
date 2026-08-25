@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benjamin's street wear</title>
+<link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="logo"><i>Benjamin's wears</i></div>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#products">Shop</a></li>
+      <li><a href="#products">New Arrivals</a></li>
+      <li><a href="#products">Sale</a></li>
+      <li><a href="#login">Login</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="cart-icon" id="cartIcon">
+      🛒 <span class="cart-count" id="cartCount">0</span>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <h1>Elevate Your Style</h1>
+      <p>Premium clothing for the modern individual. Shop the latest trends.</p>
+      <button class="btn-primary" onclick="shopNow()">Shop Now</button>
+    </div> 
+  </section>
+
+  <!-- Featured Products -->
+  <section class="products" id="products">
+    <h2>Best Sellers</h2>
+    <div class="product-grid">
+      <div class="product-card" data-product="Leather Jacket" data-price="129.99">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWuHZxkzDke-UuNjZUe2pEdCOX42B5JAO3x7cJgjGGXw&s">
+        <h3>Leather Jacket</h3>
+        <p class="price">$115.99</p>
+        <button class="btn-add" onclick="addToCart('Leather Jacket', 115.99)">Add to Cart</button>
+      </div>
+
+      <div class="product-card" data-product="Classic Hoodie" data-price="59.99">
+        <img src="https://cdn-images.farfetch-contents.com/36/65/67/09/36656709_68911203_1000.jpg?ov=true">
+        <h3>Classic Hoodie</h3>
+        <p class="price">$59.99</p>
+        <button class="btn-add" onclick="addToCart('Classic Hoodie', 59.99)">Add to Cart</button>
+      </div> 
+
+      <div class="product-card" data-product="Slim Fit Jeans" data-price="79.99">
+        <img src="https://cdn-images.farfetch-contents.com/32/28/43/81/32284381_63703742_1000.jpg?ov=true">
+        <h3>Slimfit jean</h3>
+        <p class="price">$79.99</p>
+        <button class="btn-add" onclick="addToCart('Slim Fit Jeans', 79.99)">Add to Cart</button>
+      </div>
+
+      <div class="product-card" data-product="Premium Tee" data-price="34.99">
+        <img src="https://cdn-images.farfetch-contents.com/28/48/08/76/28480876_58186689_1000.jpg?ov=true">
+        <h3>Premium Tee</h3>
+        <p class="price">$34.99</p>
+        <button class="btn-add" onclick="addToCart('Premium Tee', 34.99)">Add to Cart</button>
+      </div>
+
+      <div class="product-card" data-product="joggers" data-price="44.99">
+        <img src="https://cdn-images.farfetch-contents.com/36/65/67/04/36656704_68928139_1000.jpg?ov=true">
+        <h3>joggers</h3>
+        <p class="price">$44.99</p>
+        <button class="btn-add" onclick="addToCart('joggers', 44.99)">Add to Cart</button>
+      </div>
+
+      <div class="product-card" data-product="joggers" data-price="44.99">
+        <img src="https://cdn-images.farfetch-contents.com/36/54/88/66/36548866_68599239_1000.jpg?ov=true" >
+        <h3>Suits</h3>
+        <p class="price">$90.99</p>
+        <button class="btn-add" onclick="addToCart('Suits', 90.99)">Add to Cart</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Login Form -->
+  <section class="login-section" id="login">
+    <h2>Welcome Back!</h2>
+    <p>Login to your Benjamin's street wear account</p>
+    
+    <form class="login-form" id="loginForm">
+      <div class="form-group">
+        <label for="login-email">Email Address</label>
+        <input type="email" id="login-email" placeholder="Enter your email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password" required>
+      </div>
+      
+      <div class="login-options">
+        <label class="remember-me">
+          <input type="checkbox" id="rememberMe"> Remember Me
+        </label>
+        <a href="#" class="forgot-password" onclick="forgotPassword()">Forgot Password?</a>
+      </div>
+      
+      <button type="submit" class="btn-login">Login</button>
+      
+      <p class="signup-link">Don't have an account? <a href="#" onclick="signUp()">Sign Up</a></p>
+    </form>
+  </section>
+  
+  <!-- Contact Form -->
+  <section class="contact-section" id="contact">
+    <h2>Get In Touch</h2>
+    <p>Have questions? We'd love to hear from you!</p>
+    
+    <form class="contact-form" id="contactForm">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Enter your name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="subject">Subject</label>
+        <select id="subject">
+          <option value="">Select a subject</option>
+          <option value="order">Order Inquiry</option>
+          <option value="returns">Returns/Exchange</option>
+          <option value="shipping">Shipping Question</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" rows="5" placeholder="Write your message here..." required></textarea>
+      </div>
+      
+      <button type="submit" class="btn-submit">Send Message</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 Benjamin's street wear. All rights reserved.</p>
+    <div class="social-links">
+      <a href="#" onclick="socialLink('Instagram')">Instagram</a> | 
+      <a href="#" onclick="socialLink('Facebook')">Facebook</a> | 
+      <a href="#" onclick="socialLink('Twitter')">Twitter</a>
+    </div>
+  </footer>
+
+  <!-- Link JavaScript -->
+ <script src="{{url_for('static',filename='script.js') }}"></script>
+</body>
+</html>
