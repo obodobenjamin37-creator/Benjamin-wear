@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Benjamin's street wear</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Center the form on the page */
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; }
+        .login-section { width: 100%; max-width: 400px; }
+    </style>
+</head>
+<body>
+    <section class="login-section" id="loginSection">
+        <h2>Create Your Account</h2>
+        <p>Join Benjamin's street wear</p>
+        
+        <form class="login-form" id="registerForm">
+            <div class="form-group">
+                <label for="register-email">Email Address</label>
+                <input type="email" id="register-email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="register-password">Password</label>
+                <input type="password" id="register-password" placeholder="Create a password" required>
+            </div>
+            
+           <button type="button" onclick="submitRegister()">Sign Up</button>
+           <p class="signup-link">Already have an account? <a href="/login">Login</a></p>
+        </form>
+    </section>
+    
+    <!-- Link to our script.js -->
+    <script src="/static/script.js"></script>
+</body>
+</html>

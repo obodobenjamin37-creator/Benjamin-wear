@@ -32,6 +32,14 @@ def home():
     """Render the main page"""
     return render_template('index.html')
 
+@app.route('/login')
+def login_page():
+    return render_template('login.html')
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+    
 # ============================================
 # API ENDPOINTS
 # ============================================
@@ -88,7 +96,7 @@ def clear_cart():
     })
 
 @app.route('/api/login', methods=['POST'])
-def login():
+def api_login():
     data = request.get_json()
     username = data.get('email')
     password = data.get('password')
@@ -202,9 +210,6 @@ def forgot_password():
 def not_found(error):
     return jsonify({'error': 'Page not found'}), 404
 
-@app.errorhandler(500)
-def server_error(error):
-    return jsonify({'error': 'Internal server error'}), 500
 
 # ============================================
 # RUN THE APP
@@ -213,4 +218,4 @@ def server_error(error):
 if __name__ == '__main__':
         with app.app_context():
           db.create_all()
-app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

@@ -300,8 +300,7 @@ const signupBtn = document.getElementById('signupLink');
 if (signupBtn) {
     signupBtn.addEventListener('click', (e) => {
         e.preventDefault(); 
-        document.getElementById('loginSection').style.display = 'none'; 
-        document.getElementById('signupSection').style.display = 'block'; 
+       
     });
 }
 
@@ -327,8 +326,7 @@ if (registerForm) {
         
         if (data.success) {
             alert('Account created successfully! Please login.');
-            document.getElementById('signupSection').style.display = 'none'; 
-            document.getElementById('loginSection').style.display = 'block'; 
+
         } else {
             alert(data.error || 'Registration failed. Please try again.');
         }
@@ -355,10 +353,39 @@ function submitRegister() {
     .then(data => {
         if (data.success) {
             alert('Account created successfully! Please login.');
-            document.getElementById('signupSection').style.display = 'none'; 
-            document.getElementById('loginSection').style.display = 'block'; 
+           
         } else {
             alert(data.error || 'Registration failed. Please try again.');
+        }
+    })
+    .catch(error => {
+        alert('There was a problem connecting to the server. Please try again.');
+    });
+}
+
+function submitLogin() {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    if (!email || !password) {
+        alert('Please fill in both email and password!');
+        return;
+    }
+
+    fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Welcome back, ' + data.user + '!');
+            window.location.href = '/';
+        } else {
+            alert(data.error || 'Login failed. Please try again.');
         }
     })
     .catch(error => {
