@@ -82,7 +82,7 @@
   </section>
 
   <!-- Login Form -->
-  <section class="login-section" id="login">
+  <section class="login-section" id="loginSection">
     <h2>Welcome Back!</h2>
     <p>Login to your Benjamin's street wear account</p>
     
@@ -101,15 +101,27 @@
         <label class="remember-me">
           <input type="checkbox" id="rememberMe"> Remember Me
         </label>
-        <a href="#" class="forgot-password" onclick="forgotPassword()">Forgot Password?</a>
+        <a href="#" onclick="return false;">Forgot Password?</a>
       </div>
       
       <button type="submit" class="btn-login">Login</button>
-      
-      <p class="signup-link">Don't have an account? <a href="#" onclick="signUp()">Sign Up</a></p>
-    </form>
+       <p class="signup-link">Don't have an account? <button type="button" id="signupLink">Sign Up</button></p>
   </section>
-  
+ <!-- Sign Up Section -->
+<div id="signupSection" style="display: none;">
+    <h2>Create Your Account</h2>
+    <form class="login-form" id="registerForm">
+        <div class="form-group">
+            <label for="register-email">Email Address</label>
+            <input type="email" id="register-email" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+            <label for="register-password">Password</label>
+            <input type="password" id="register-password" placeholder="Create a password" required>
+        </div>
+       <button type="button" onclick="submitRegister()">Sign Up</button>
+    </form>
+</div>
   <!-- Contact Form -->
   <section class="contact-section" id="contact">
     <h2>Get In Touch</h2>
@@ -157,6 +169,6 @@
   </footer>
 
   <!-- Link JavaScript -->
- <script src="{{url_for('static',filename='script.js') }}"></script>
+<script src="/static/script.js?v=999"></script>
 </body>
 </html>

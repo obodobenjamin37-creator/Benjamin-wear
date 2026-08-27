@@ -1,10 +1,28 @@
 from flask import Flask, render_template, request, jsonify, session
 import json
 import os
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-in-production'  # Required for sessions
+app.secret_key = 'your-secret-key-here-change-in-production'
+# Database Setup
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
+# User Model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 # ============================================
 # ROUTES
 # ============================================
@@ -71,46 +89,44 @@ def clear_cart():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    """Handle login"""
-    try:
-        data = request.json
-        email = data.get('email')
-        password = data.get('password')
+    data = request.get_json()
+    username = data.get('email')
+    password = data.get('password')
+    
+    user = User.query.filter_by(username=username).first()
+    
+    if user is None or not user.check_password(password):
+        return jsonify({'error': 'Invalid username or password'}), 401
         
-        # Basic validation
-        if not email or not password:
-            return jsonify({
-                'success': False,
-                'message': 'Please fill in all fields! ⚠️'
-            }), 400
+    session['user'] = username
+    return jsonify({'success': True, 'message': 'Welcome back!', 'user': username})
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('email')
+    password = data.get('password')
+    
+    if not username or not password:
+        return jsonify({'error': 'Missing email or password'}), 400
         
-        if len(password) < 6:
-            return jsonify({
-                'success': False,
-                'message': 'Password must be at least 6 characters! ❌'
-            }), 400
+    # Check if user already exists
+    if User.query.filter_by(username=username).first():
+        return jsonify({'error': 'User already exists'}), 400
         
-        # Here you would check against a database
-        # For demo, we'll just accept any valid email/password
-        
-        # Store user in session
-        session['user'] = email  
-        return jsonify({
-            'success': True,
-            'message': f'Welcome back, {email.split("@")[0]}! ✅',
-            'user': email
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': 'Login failed'
-        }), 400
+    # Create new user with hashed password
+    new_user = User(username=username)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Account created securely!'}), 201
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
     """Handle logout"""
     session.pop('user', None)
-    return jsonify({
+    return jsonify({--
         'success': True,
         'message': 'Logged out successfully! 👋'
     })
@@ -195,5 +211,6 @@ def server_error(error):
 # ============================================
 
 if __name__ == '__main__':
-    # For production, use: app.run(host='0.0.0.0', port=5000, debug=False)
-    app.run(debug=True, port=5000)
+        with app.app_context():
+          db.create_all()
+app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

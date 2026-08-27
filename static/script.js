@@ -1,3 +1,5 @@
+
+
 // ============================================
 // CART FUNCTIONALITY
 // ============================================
@@ -6,7 +8,6 @@ let cartCount = 0;
 let cartItems = [];
 
 function addToCart(productName, price) {
-    // Show loading state
     const buttons = document.querySelectorAll('.btn-add');
     buttons.forEach(btn => {
         if (btn.textContent.includes('Add to Cart')) {
@@ -15,7 +16,6 @@ function addToCart(productName, price) {
         }
     });
 
-    // Send to Flask backend
     fetch('/api/add-to-cart', {
         method: 'POST',
         headers: {
@@ -34,7 +34,6 @@ function addToCart(productName, price) {
             cartItems.push({ name: productName, price: price });
             showNotification(data.message);
             
-            // Animate cart icon
             const cartIcon = document.getElementById('cartIcon');
             cartIcon.style.transform = 'scale(1.3)';
             setTimeout(() => {
@@ -45,14 +44,12 @@ function addToCart(productName, price) {
         }
     })
     .catch(error => {
-        // Fallback: still update cart locally if server fails
         cartCount++;
         document.getElementById('cartCount').textContent = cartCount;
         cartItems.push({ name: productName, price: price });
         showNotification(`${productName} added to cart! 🛒`);
     })
     .finally(() => {
-        // Reset buttons
         const buttons = document.querySelectorAll('.btn-add');
         buttons.forEach(btn => {
             btn.textContent = 'Add to Cart';
@@ -61,20 +58,12 @@ function addToCart(productName, price) {
     });
 }
 
-// ============================================
-// SHOP NOW BUTTON
-// ============================================
-
 function shopNow() {
     document.getElementById('products').scrollIntoView({ 
         behavior: 'smooth' 
     });
     showNotification('Check out our latest collection! 👕');
 }
-
-// ============================================
-// LOGIN FUNCTIONALITY (Only ONE version here!)
-// ============================================
 
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -88,12 +77,10 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         return;
     }
     
-    // Show loading
     const loginBtn = this.querySelector('.btn-login');
     loginBtn.textContent = 'Logging in...';
     loginBtn.disabled = true;
     
-    // Send to Flask backend
     fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -131,10 +118,6 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     });
 });
 
-// ============================================
-// CONTACT FORM FUNCTIONALITY
-// ============================================
-
 document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -148,12 +131,10 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
         return;
     }
     
-    // Show loading
     const submitBtn = this.querySelector('.btn-submit');
     submitBtn.textContent = 'Sending...';
     submitBtn.disabled = true;
     
-    // Send to Flask backend
     fetch('/api/contact', {
         method: 'POST',
         headers: {
@@ -185,31 +166,20 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     });
 });
 
-// ============================================
-// SOCIAL LINKS
-// ============================================
-
 function socialLink(platform) {
     showNotification(`Opening ${platform}... 📱`);
 }
 
-// ============================================
-// NOTIFICATION SYSTEM
-// ============================================
-
 function showNotification(message, type = 'info') {
-    // Remove existing notification
     const existing = document.querySelector('.notification');
     if (existing) {
         existing.remove();
     }
     
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.textContent = message;
     
-    // Add color based on type
     const colors = {
         'success': '#4CAF50',
         'error': '#f44336',
@@ -220,7 +190,6 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    // Auto-remove after 3 seconds
     setTimeout(() => {
         notification.style.animation = 'slideOutDown 0.5s ease';
         setTimeout(() => {
@@ -229,12 +198,7 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// ============================================
-// KEYBOARD SHORTCUTS
-// ============================================
-
 document.addEventListener('keydown', function(e) {
-    // Press 'C' to clear cart
     if (e.key === 'c' || e.key === 'C') {
         if (cartCount > 0) {
             fetch('/api/clear-cart', {
@@ -259,16 +223,11 @@ document.addEventListener('keydown', function(e) {
         }
     }
     
-    // Press 'Escape' to scroll to top
     if (e.key === 'Escape') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         showNotification('Scrolled to top! ⬆️');
     }
 });
-
-// ============================================
-// CART ICON CLICK - SHOW CART SUMMARY
-// ============================================
 
 document.getElementById('cartIcon').addEventListener('click', function() {
     fetch('/api/get-cart')
@@ -285,10 +244,7 @@ document.getElementById('cartIcon').addEventListener('click', function() {
             });
             message += `\nTotal: $${data.total}`;
             
-            // Show in notification
             showNotification(`Cart: ${data.count} items, Total: $${data.total}`);
-            
-            // Also log to console for detailed view
             console.log(message);
         })
         .catch(error => {
@@ -301,12 +257,7 @@ document.getElementById('cartIcon').addEventListener('click', function() {
         });
 });
 
-// ============================================
-// AUTO-LOAD FROM LOCALSTORAGE
-// ============================================
-
 window.addEventListener('load', function() {
-    // Check for saved email
     const savedEmail = localStorage.getItem('userEmail');
     if (savedEmail) {
         document.getElementById('login-email').value = savedEmail;
@@ -316,7 +267,6 @@ window.addEventListener('load', function() {
         }, 500);
     }
     
-    // Get cart count from server
     fetch('/api/get-cart')
         .then(response => response.json())
         .then(data => {
@@ -327,7 +277,6 @@ window.addEventListener('load', function() {
             }
         })
         .catch(error => {
-            // If server fails, load from localStorage
             const savedCart = localStorage.getItem('cartItems');
             if (savedCart) {
                 try {
@@ -338,7 +287,6 @@ window.addEventListener('load', function() {
             }
         });
     
-    // Add delay to product cards
     document.querySelectorAll('.product-card').forEach((card, index) => {
         card.style.animationDelay = `${index * 0.2}s`;
     });
@@ -347,38 +295,73 @@ window.addEventListener('load', function() {
 // ============================================
 // SIGN UP / LOGIN SECTION TOGGLING
 // ============================================
+// Handle Sign Up Link
+const signupBtn = document.getElementById('signupLink');
+if (signupBtn) {
+    signupBtn.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        document.getElementById('loginSection').style.display = 'none'; 
+        document.getElementById('signupSection').style.display = 'block'; 
+    });
+}
 
-// Handle Sign Up Link (This searches for the ID, which we will add to your HTML!)
-document.getElementById('signupLink').addEventListener('click', (e) => {
-    e.preventDefault(); // Stops the page from reloading!
-    
-    // Hide login form, show sign up form
-    document.getElementById('loginSection').style.display = 'none'; 
-    document.getElementById('signupSection').style.display = 'block'; 
-});
 
 // Handle Register Form
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
+const registerForm = document.getElementById('registerForm');
+if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email, password: password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Account created successfully! Please login.');
+            document.getElementById('signupSection').style.display = 'none'; 
+            document.getElementById('loginSection').style.display = 'block'; 
+        } else {
+            alert(data.error || 'Registration failed. Please try again.');
+        }
+    });
+}
+
+function submitRegister() {
     const email = document.getElementById('register-email').value;
     const password = document.getElementById('register-password').value;
-    
-    const response = await fetch('/api/register', {
+
+    if (!email || !password) {
+        alert('Please fill in both email and password!');
+        return;
+    }
+
+    fetch('/api/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ email: email, password: password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Account created successfully! Please login.');
+            document.getElementById('signupSection').style.display = 'none'; 
+            document.getElementById('loginSection').style.display = 'block'; 
+        } else {
+            alert(data.error || 'Registration failed. Please try again.');
+        }
+    })
+    .catch(error => {
+        alert('There was a problem connecting to the server. Please try again.');
     });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-        alert('Account created successfully! Please login.');
-        document.getElementById('signupSection').style.display = 'none'; // Hide signup
-        document.getElementById('loginSection').style.display = 'block'; // Show login
-    } else {
-        alert(data.error || 'Registration failed. Please try again.');
-    }
-});
+}
