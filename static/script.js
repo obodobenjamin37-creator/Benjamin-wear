@@ -65,106 +65,57 @@ function shopNow() {
     showNotification('Check out our latest collection! 👕');
 }
 
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const remember = document.getElementById('rememberMe').checked;
-    
-    if (!email || !password) {
-        showNotification('Please fill in all fields! ⚠️');
-        return;
-    }
-    
-    const loginBtn = this.querySelector('.btn-login');
-    loginBtn.textContent = 'Logging in...';
-    loginBtn.disabled = true;
-    
-    fetch('/api/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            email: email, 
-            password: password 
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification(data.message);
-            if (remember) {
-                localStorage.setItem('userEmail', email);
-            } else {
-                localStorage.removeItem('userEmail');
-            }
-            document.getElementById('loginForm').reset();
-        } else {
-            showNotification(data.error || 'Login failed! ❌');
-        }
-    })
-    .catch(error => {
-        showNotification(`Welcome back, ${email.split('@')[0]}! ✅`);
-        if (remember) {
-            localStorage.setItem('userEmail', email);
-        }
-        document.getElementById('loginForm').reset();
-    })
-    .finally(() => {
-        loginBtn.textContent = 'Login';
-        loginBtn.disabled = false;
-    });
-});
 
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const subject = document.getElementById('subject').value;
-    const message = document.getElementById('message').value.trim();
-    
-    if (!name || !email || !subject || !message) {
-        showNotification('Please fill in all fields! ⚠️');
-        return;
-    }
-    
-    const submitBtn = this.querySelector('.btn-submit');
-    submitBtn.textContent = 'Sending...';
-    submitBtn.disabled = true;
-    
-    fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            name: name, 
-            email: email, 
-            subject: subject,
-            message: message 
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification(data.message);
-            document.getElementById('contactForm').reset();
-        } else {
-            showNotification(data.error || 'Error sending message! ❌');
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value.trim();
+        
+        if (!name || !email || !subject || !message) {
+            showNotification('Please fill in all fields! ⚠️');
+            return;
         }
-    })
-    .catch(error => {
-        showNotification(`Thank you ${name}! We'll get back to you soon! 📧`);
-        document.getElementById('contactForm').reset();
-    })
-    .finally(() => {
-        submitBtn.textContent = 'Send Message';
-        submitBtn.disabled = false;
+        
+        const submitBtn = this.querySelector('.btn-submit');
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+        
+        fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                name: name, 
+                email: email, 
+                subject: subject,
+                message: message 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message);
+                document.getElementById('contactForm').reset();
+            } else {
+                showNotification(data.error || 'Error sending message! ❌');
+            }
+        })
+        .catch(error => {
+            showNotification(`Thank you ${name}! We'll get back to you soon! 📧`);
+            document.getElementById('contactForm').reset();
+        })
+        .finally(() => {
+            submitBtn.textContent = 'Send Message';
+            submitBtn.disabled = false;
+        });
     });
-});
+}
 
 function socialLink(platform) {
     showNotification(`Opening ${platform}... 📱`);
@@ -229,33 +180,40 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-document.getElementById('cartIcon').addEventListener('click', function() {
-    fetch('/api/get-cart')
-        .then(response => response.json())
-        .then(data => {
-            if (data.count === 0) {
-                showNotification('Your cart is empty! 🛒');
-                return;
-            }
-            
-            let message = `🛒 Cart (${data.count} items):\n`;
-            data.items.forEach((item, index) => {
-                message += `${index + 1}. ${item.name} - $${item.price}\n`;
+const cartIcon = document.getElementById('cartIcon');
+if (cartIcon) {
+    cartIcon.addEventListener('click', function() {
+        fetch('/api/get-cart')
+            .then(response => response.json())
+            .then(data => {
+                if (data.count === 0) {
+                    alert('Your cart is empty! 🛒');
+                    return;
+                }
+                
+                let itemsHtml = '';
+                data.items.forEach((item, index) => {
+                    itemsHtml += `
+                        <div class="cart-item">
+                            <span>${index + 1}. ${item.name} - $${item.price}</span>
+                            <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('cartItemsList').innerHTML = itemsHtml;
+                document.querySelector('.cart-total').textContent = `Total: $${data.total}`;
+                document.getElementById('cartModal').style.display = 'flex';
+            })
+            .catch(error => {
+                if (cartItems.length === 0) {
+                    showNotification('Your cart is empty! 🛒');
+                } else {
+                    showNotification(`🛒 Cart (${cartItems.length} items)`);
+                }
             });
-            message += `\nTotal: $${data.total}`;
-            
-            showNotification(`Cart: ${data.count} items, Total: $${data.total}`);
-            console.log(message);
-        })
-        .catch(error => {
-            if (cartItems.length === 0) {
-                showNotification('Your cart is empty! 🛒');
-            } else {
-                let message = `🛒 Cart (${cartItems.length} items)`;
-                showNotification(message);
-            }
-        });
-});
+    });
+}
 
 window.addEventListener('load', function() {
     const savedEmail = localStorage.getItem('userEmail');
@@ -404,3 +362,118 @@ function togglePassword(inputId, button) {
         button.textContent = '👁️'; // Change to "show" icon
     }
 }
+
+function addProduct() {
+    const name = document.getElementById('name').value;
+    const price = document.getElementById('price').value;
+    const image = document.getElementById('image').value;
+
+    if (!name || !price || !image) {
+        alert('Please fill in all fields!');
+        return;
+    }
+
+    fetch('/api/products', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: name, price: price, image: image })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            document.getElementById('adminForm').reset();
+        } else {
+            alert('Error adding product. Please try again.');
+        }
+    })
+    .catch(error => {
+        alert('There was a problem connecting to the server. Please try again.');
+    });
+}
+
+function closeCart() {
+    document.getElementById('cartModal').style.display = 'none';
+}
+
+function removeFromCart(index) {
+    fetch('/api/remove-from-cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ index: index })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            cartCount--;
+            document.getElementById('cartCount').textContent = cartCount;
+            document.getElementById('cartIcon').click();
+        } else {
+            alert('Could not remove item.');
+        }
+    });
+}
+
+function clearCart() {
+    fetch('/api/clear-cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        cartCount = 0;
+        cartItems = [];
+        document.getElementById('cartCount').textContent = '0';
+        document.getElementById('cartModal').style.display = 'none';
+        showNotification(data.message || 'Cart cleared! 🗑️');
+    });
+}
+
+
+// Load products for deletion
+function loadProductsForDelete() {
+    fetch('/api/get-products')
+        .then(response => response.json())
+        .then(data => {
+            const productList = document.getElementById('productList');
+            productList.innerHTML = '';
+            
+            data.products.forEach(product => {
+                productList.innerHTML += `
+                    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>${product.name} - $${product.price}</span>
+                        <button onclick="deleteProduct(${product.id})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Delete</button>
+                    </div>
+                `;
+            });
+        });
+}
+
+function deleteProduct(id) {
+    if (confirm('Are you sure you want to delete this product?')) {
+        fetch(`/api/products/delete/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            loadProductsForDelete(); // Refresh the list
+        });
+    }
+}
+
+// Load products when the admin page loads
+window.addEventListener('load', function() {
+    if (document.getElementById('productList')) {
+        loadProductsForDelete();
+    }
+});

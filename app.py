@@ -13,6 +13,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # User Model
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    image = db.Column(db.String(500), nullable=False)
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -30,7 +36,8 @@ class User(db.Model):
 def home():
     if 'user' not in session:
         return redirect(url_for('login_page'))
-    return render_template('index.html')
+    products = Product.query.all()
+    return render_template('index.html', products=products)
 
 @app.route('/logout')
 def logout_page():
@@ -44,6 +51,37 @@ def login_page():
 @app.route('/signup')
 def signup():
     return render_template('signup.html')
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
+@app.route('/api/products', methods=['POST'])
+def add_product():
+    data = request.get_json()
+    new_product = Product(
+        name=data['name'],
+        price=data['price'],
+        image=data['image']
+    )
+    db.session.add(new_product)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Product added successfully!'})
+
+@app.route('/api/get-products', methods=['GET'])
+def get_products():
+    products = Product.query.all()
+    return jsonify({'products': [{'id': p.id, 'name': p.name, 'price': p.price} for p in products]})
+
+@app.route('/api/products/delete/<int:id>', methods=['DELETE'])
+def delete_product(id):
+    product = Product.query.get(id)
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Product deleted!'})
+    return jsonify({'success': False, 'message': 'Product not found'}), 404
+
 
 # ============================================
 # API ENDPOINTS
@@ -99,6 +137,22 @@ def clear_cart():
         'success': True,
         'message': 'Cart cleared! 🗑️'
     })
+
+@app.route('/api/remove-from-cart', methods=['POST'])
+def remove_from_cart():
+    data = request.get_json()
+    index = data.get('index')
+    
+    if 'cart' in session:
+        cart = session['cart']
+        if 0 <= index < len(cart):
+            cart.pop(index)
+            session['cart'] = cart
+            session.modified = True
+            return jsonify({'success': True, 'message': 'Item removed!'})
+            
+    return jsonify({'success': False, 'message': 'Item not found'}), 400
+
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
@@ -221,6 +275,6 @@ def not_found(error):
 # ============================================
 
 if __name__ == '__main__':
-        with app.app_context():
-          db.create_all()
-app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

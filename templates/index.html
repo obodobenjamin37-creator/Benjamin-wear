@@ -34,54 +34,20 @@
   </section>
 
   <!-- Featured Products -->
-  <section class="products" id="products">
+<section class="products" id="products">
     <h2>Best Sellers</h2>
     <div class="product-grid">
-      <div class="product-card" id="shop" data-product="Leather Jacket" data-price="129.99">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWuHZxkzDke-UuNjZUe2pEdCOX42B5JAO3x7cJgjGGXw&s">
-        <h3>Leather Jacket</h3>
-        <p class="price">$115.99</p>
-        <button class="btn-add" onclick="addToCart('Leather Jacket', 115.99)">Add to Cart</button>
-      </div>
-
-      <div class="product-card" data-product="Classic Hoodie" data-price="59.99">
-        <img src="https://cdn-images.farfetch-contents.com/36/65/67/09/36656709_68911203_1000.jpg?ov=true">
-        <h3>Classic Hoodie</h3>
-        <p class="price">$59.99</p>
-        <button class="btn-add" onclick="addToCart('Classic Hoodie', 59.99)">Add to Cart</button>
-      </div> 
-
-      <div class="product-card" id="new-arrivals" data-product="Slim Fit Jeans" data-price="79.99">
-        <img src="https://cdn-images.farfetch-contents.com/32/28/43/81/32284381_63703742_1000.jpg?ov=true">
-        <h3>Slimfit jean</h3>
-        <p class="price">$79.99</p>
-        <button class="btn-add" onclick="addToCart('Slim Fit Jeans', 79.99)">Add to Cart</button>
-      </div>
-
-      <div class="product-card" id="sale" data-product="joggers" data-price="44.99">
-        <img src="https://cdn-images.farfetch-contents.com/28/48/08/76/28480876_58186689_1000.jpg?ov=true">
-        <h3>Premium Tee</h3>
-        <p class="price">$34.99</p>
-        <button class="btn-add" onclick="addToCart('Premium Tee', 34.99)">Add to Cart</button>
-      </div>
-
-      <div class="product-card" data-product="joggers" data-price="44.99">
-        <img src="https://cdn-images.farfetch-contents.com/36/65/67/04/36656704_68928139_1000.jpg?ov=true">
-        <h3>joggers</h3>
-        <p class="price">$44.99</p>
-        <button class="btn-add" onclick="addToCart('joggers', 44.99)">Add to Cart</button>
-      </div>
-
-      <div class="product-card" data-product="joggers" data-price="44.99">
-        <img src="https://cdn-images.farfetch-contents.com/36/54/88/66/36548866_68599239_1000.jpg?ov=true" >
-        <h3>Suits</h3>
-        <p class="price">$90.99</p>
-        <button class="btn-add" onclick="addToCart('Suits', 90.99)">Add to Cart</button>
-      </div>
+        {% for product in products %}
+        <div class="product-card" data-product="{{ product.name }}" data-price="{{ product.price }}">
+            <img src="{{ product.image }}">
+            <h3>{{ product.name }}</h3>
+            <p class="price">${{ product.price }}</p>
+            <button class="btn-add" onclick="addToCart('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+        </div>
+        {% endfor %}
     </div>
-  </section>
-
-
+</section>
+ 
  <!-- Sign Up Section -->
 <div id="signupSection" style="display: none;">
     <h2>Create Your Account</h2>
@@ -143,7 +109,18 @@
     </div>
   </footer>
 
+<!-- Cart Modal -->
+<div id="cartModal" class="cart-modal" style="display: none;">
+    <div class="cart-modal-content">
+        <span class="close-btn" onclick="closeCart()">&times;</span>
+        <h2>Your Cart</h2>
+        <div id="cartItemsList"></div>
+        <p class="cart-total"></p>
+        <button onclick="clearCart()" style="background: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Clear Cart</button>
+    </div>
+</div>
+
   <!-- Link JavaScript -->
-<script src="/static/script.js?v=1000"></script>
+<script src="/static/script.js?v=1001"></script>
 </body>
 </html>
