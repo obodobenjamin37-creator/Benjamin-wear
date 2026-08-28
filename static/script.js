@@ -489,3 +489,24 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+function placeOrder() {
+    fetch('/api/place-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            cartCount = 0;
+            cartItems = [];
+            document.getElementById('cartCount').textContent = '0';
+            document.getElementById('cartModal').style.display = 'none';
+        } else {
+            alert(data.error || 'Could not place order.');
+        }
+    });
+}

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import json
 import os
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -18,6 +19,13 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     image = db.Column(db.String(500), nullable=False)
+
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_email = db.Column(db.String(120))
+    items = db.Column(db.Text)
+    total = db.Column(db.Float)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -137,6 +145,29 @@ def clear_cart():
         'success': True,
         'message': 'Cart cleared! 🗑️'
     })
+
+@app.route('/api/place-order', methods=['POST'])
+def place_order():
+    cart = session.get('cart', [])
+    if not cart:
+        return jsonify({'success': False, 'message': 'Your cart is empty!'}), 400
+        
+    total = sum(item['price'] for item in cart)
+    
+    new_order = Order(
+        customer_email=session.get('user', 'Guest'),
+        items=str(cart),
+        total=total
+    )
+    
+    db.session.add(new_order)
+    db.session.commit()
+    
+    # Clear the cart after placing the order
+    session['cart'] = []
+    session.modified = True
+    
+    return jsonify({'success': True, 'message': 'Order placed successfully! We will contact you soon!'})
 
 @app.route('/api/remove-from-cart', methods=['POST'])
 def remove_from_cart():
