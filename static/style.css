@@ -617,8 +617,22 @@ body {
 }
 
 .btn-login:hover {
-    background-color: #d63851;
+  background: #e94560;
+  transform: scale(1.02);
 }
+
+/* Login and Signup page background */
+body {
+    background-color: #800000; /* Dark Red to match theme */
+    margin: 0;
+    padding: 20px;
+}
+
+/* Make the login/signup container transparent so the red shows through */
+.login-section {
+    background: transparent;
+}
+
 
 /* Styling for Forgot Password link */
 .login-options {
