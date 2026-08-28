@@ -406,6 +406,27 @@ body {
   font-family: inherit;
 }
 
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 40px; /* Make room for the eye button */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+
 /* ===== SWEET: INPUT FOCUS GLOW ===== */
 .login-form .form-group input:focus {
   outline: none;

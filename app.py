@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import json
 import os
 from flask_sqlalchemy import SQLAlchemy
@@ -26,11 +26,16 @@ class User(db.Model):
 # ============================================
 # ROUTES
 # ============================================
-
 @app.route('/')
 def home():
-    """Render the main page"""
+    if 'user' not in session:
+        return redirect(url_for('login_page'))
     return render_template('index.html')
+
+@app.route('/logout')
+def logout_page():
+    session.pop('user', None)
+    return redirect(url_for('login_page'))
 
 @app.route('/login')
 def login_page():
@@ -39,7 +44,7 @@ def login_page():
 @app.route('/signup')
 def signup():
     return render_template('signup.html')
-    
+
 # ============================================
 # API ENDPOINTS
 # ============================================
@@ -131,7 +136,7 @@ def register():
     return jsonify({'success': True, 'message': 'Account created securely!'}), 201
 
 @app.route('/api/logout', methods=['POST'])
-def logout():
+def api_logout():
     """Handle logout"""
     session.pop('user', None)
     return jsonify({--

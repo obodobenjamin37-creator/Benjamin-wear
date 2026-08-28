@@ -13,10 +13,10 @@
     <div class="logo"><i>Benjamin's wears</i></div>
     <ul class="nav-links">
       <li><a href="#home">Home</a></li>
-      <li><a href="#products">Shop</a></li>
-      <li><a href="#products">New Arrivals</a></li>
-      <li><a href="#products">Sale</a></li>
-    <li><a href="/login">Login</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="#new-arrivals">New Arrivals</a></li>
+      <li><a href="#sale">Sale</a></li>
+      <li><a href="/logout">Logout</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="cart-icon" id="cartIcon">
@@ -37,7 +37,7 @@
   <section class="products" id="products">
     <h2>Best Sellers</h2>
     <div class="product-grid">
-      <div class="product-card" data-product="Leather Jacket" data-price="129.99">
+      <div class="product-card" id="shop" data-product="Leather Jacket" data-price="129.99">
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWuHZxkzDke-UuNjZUe2pEdCOX42B5JAO3x7cJgjGGXw&s">
         <h3>Leather Jacket</h3>
         <p class="price">$115.99</p>
@@ -51,14 +51,14 @@
         <button class="btn-add" onclick="addToCart('Classic Hoodie', 59.99)">Add to Cart</button>
       </div> 
 
-      <div class="product-card" data-product="Slim Fit Jeans" data-price="79.99">
+      <div class="product-card" id="new-arrivals" data-product="Slim Fit Jeans" data-price="79.99">
         <img src="https://cdn-images.farfetch-contents.com/32/28/43/81/32284381_63703742_1000.jpg?ov=true">
         <h3>Slimfit jean</h3>
         <p class="price">$79.99</p>
         <button class="btn-add" onclick="addToCart('Slim Fit Jeans', 79.99)">Add to Cart</button>
       </div>
 
-      <div class="product-card" data-product="Premium Tee" data-price="34.99">
+      <div class="product-card" id="sale" data-product="joggers" data-price="44.99">
         <img src="https://cdn-images.farfetch-contents.com/28/48/08/76/28480876_58186689_1000.jpg?ov=true">
         <h3>Premium Tee</h3>
         <p class="price">$34.99</p>
@@ -144,6 +144,6 @@
   </footer>
 
   <!-- Link JavaScript -->
-<script src="/static/script.js?v=999"></script>
+<script src="/static/script.js?v=1000"></script>
 </body>
 </html>

@@ -392,3 +392,15 @@ function submitLogin() {
         alert('There was a problem connecting to the server. Please try again.');
     });
 }
+
+
+function togglePassword(inputId, button) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = '🙈'; // Change to "hide" icon
+    } else {
+        input.type = 'password';
+        button.textContent = '👁️'; // Change to "show" icon
+    }
+}
