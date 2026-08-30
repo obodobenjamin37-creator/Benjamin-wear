@@ -250,6 +250,8 @@ window.addEventListener('load', function() {
     });
 });
 
+      
+
 // ============================================
 // SIGN UP / LOGIN SECTION TOGGLING
 // ============================================

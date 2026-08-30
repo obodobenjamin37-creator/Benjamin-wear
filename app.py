@@ -7,6 +7,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here-change-in-production'
+from datetime import timedelta
+app.permanent_session_lifetime = timedelta(days=30) # Remember the user for 30 days
+
 # Database Setup
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
@@ -195,9 +198,16 @@ def api_login():
     
     if user is None or not user.check_password(password):
         return jsonify({'error': 'Invalid username or password'}), 401
-        
+
+    session.permanent = True     
     session['user'] = username
     return jsonify({'success': True, 'message': 'Welcome back!', 'user': username})
+
+@app.route('/api/check-session', methods=['GET'])
+def check_session():
+    if 'user' in session:
+        return jsonify({'logged_in': True, 'user': session['user']})
+    return jsonify({'logged_in': False})
 
 @app.route('/api/register', methods=['POST'])
 def register():

@@ -6,11 +6,14 @@
   font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
 }
 
-body {
-  background: #65fafa;
-  color: #420909;
-  animation: bodyFadeIn 1.5s ease 0s 1 forwards;
-}
+
+ 
+    body {
+        background-color: #800000; /* Dark Red */
+        margin: 0;
+        padding: 20px;
+    }
+
 
 /* ===== BODY ANIMATION ===== */
 @keyframes bodyFadeIn {
@@ -621,12 +624,6 @@ body {
   transform: scale(1.02);
 }
 
-/* Login and Signup page background */
-body {
-    background-color: #800000; /* Dark Red to match theme */
-    margin: 0;
-    padding: 20px;
-}
 
 /* Make the login/signup container transparent so the red shows through */
 .login-section {
