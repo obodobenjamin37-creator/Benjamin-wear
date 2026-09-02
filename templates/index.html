@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Benjamin's street wear</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=6000">
+  <title>Benjamin's Store</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9000">
 </head>
 <body>
   <!-- Navigation -->
   <nav class="navbar">
-    <div class="logo"><i>Benjamin's wears</i></div>
+    <div class="logo"><i>Benjamin's Store</i></div>
     <ul class="nav-links">
       <li><a href="#home">Home</a></li>
       <li><a href="#products">Shop</a></li>
@@ -26,18 +26,58 @@
   <!-- Hero Section -->
   <section class="hero" id="home">
     <div class="hero-content">
-      <h1>Elevate Your Style</h1>
-      <p>Premium clothing for the modern individual. Shop the latest trends.</p>
+      <h1>Elevate Your Style New seasons, New You</h1>
+      <p>Clothing • Shoes • Accessories — all at unbeatable prices. Fresh arrivals daily, fast shipping, and hassle-free returns. Your next favorite outfit is just a click away.</p>
       <button class="btn-primary" onclick="shopNow()">Shop Now</button>
     </div> 
   </section>
 
   <!-- Featured Products -->
 <section class="products" id="products">
-    <h2>Best Sellers</h2>
+    <h2>Our Collections</h2>
+    <h3 class="category-title">Clothing</h3>
     <div class="product-grid">
-        {% for product in products %}
-        <div class="product-card" data-product="{{ product.name }}" data-price="{{ product.price }}">
+        {% for product in products if product.category == 'Clothing' %}
+        <div class="product-card">
+            <img src="{{ product.image }}">
+            <h3>{{ product.name }}</h3>
+            <p class="price">${{ product.price }}</p>
+            <button class="btn-add" onclick="addToCart('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Gadgets Section -->
+    <h3 class="category-title">Gadgets</h3>
+    <div class="product-grid">
+        {% for product in products if product.category == 'Gadgets' %}
+        <div class="product-card">
+            <img src="{{ product.image }}">
+            <h3>{{ product.name }}</h3>
+            <p class="price">${{ product.price }}</p>
+            <button class="btn-add" onclick="addToCart('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Shoes Section -->
+    <h3 class="category-title">Shoes</h3>
+    <div class="product-grid">
+        {% for product in products if product.category == 'Shoes' %}
+        <div class="product-card">
+            <img src="{{ product.image }}">
+            <h3>{{ product.name }}</h3>
+            <p class="price">${{ product.price }}</p>
+            <button class="btn-add" onclick="addToCart('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Accessories Section (if you want to add it) -->
+    <h3 class="category-title">Accessories</h3>
+    <div class="product-grid">
+        {% for product in products if product.category == 'Accessories' %}
+        <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
             <p class="price">${{ product.price }}</p>
@@ -46,7 +86,7 @@
         {% endfor %}
     </div>
 </section>
- 
+    
  <!-- Sign Up Section -->
 <div id="signupSection" style="display: none;">
     <h2>Create Your Account</h2>
@@ -100,7 +140,7 @@
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2026 Benjamin's street wear. All rights reserved.</p>
+    <p>&copy; 2026 Benjamin's street store. All rights reserved.</p>
     <div class="social-links">
       <a href="#" onclick="socialLink('Instagram')">Instagram</a> | 
       <a href="#" onclick="socialLink('Facebook')">Facebook</a> | 
@@ -121,6 +161,6 @@
 </div>
 
   <!-- Link JavaScript -->
-<script src="/static/script.js?v=6000"></script>
+<script src="/static/script.js?v=9000"></script>
 </body>
 </html>

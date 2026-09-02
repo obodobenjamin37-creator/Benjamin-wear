@@ -912,3 +912,14 @@ footer::before {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== CATEGORY TITLES ===== */
+.category-title {
+    font-size: 2rem;
+    color: #1a1a2e;
+    margin: 2rem 0 1rem;
+    border-bottom: 2px solid #e94560;
+    padding-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}

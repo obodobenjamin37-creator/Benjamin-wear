@@ -22,6 +22,7 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     image = db.Column(db.String(500), nullable=False)
+    category = db.Column(db.String(50), nullable=False, default='General')
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -73,7 +74,8 @@ def add_product():
     new_product = Product(
         name=data['name'],
         price=data['price'],
-        image=data['image']
+        image=data['image'],
+        category=data['category']
     )
     db.session.add(new_product)
     db.session.commit()
@@ -82,7 +84,7 @@ def add_product():
 @app.route('/api/get-products', methods=['GET'])
 def get_products():
     products = Product.query.all()
-    return jsonify({'products': [{'id': p.id, 'name': p.name, 'price': p.price} for p in products]})
+    return jsonify({'products': [{'id': p.id, 'name': p.name, 'price': p.price, 'category': p.category} for p in products]})
 
 @app.route('/api/products/delete/<int:id>', methods=['DELETE'])
 def delete_product(id):

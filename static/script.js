@@ -369,8 +369,9 @@ function addProduct() {
     const name = document.getElementById('name').value;
     const price = document.getElementById('price').value;
     const image = document.getElementById('image').value;
+    const category = document.getElementById('category').value;
 
-    if (!name || !price || !image) {
+    if (!name || !price || !image || !category) {
         alert('Please fill in all fields!');
         return;
     }
@@ -380,7 +381,7 @@ function addProduct() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name: name, price: price, image: image })
+        body: JSON.stringify({ name: name, price: price, image: image, category: category })
     })
     .then(response => response.json())
     .then(data => {
