@@ -46,8 +46,6 @@ class User(db.Model):
 # ============================================
 @app.route('/')
 def home():
-    if 'user' not in session:
-        return redirect(url_for('login_page'))
     products = Product.query.all()
     return render_template('index.html', products=products)
 
