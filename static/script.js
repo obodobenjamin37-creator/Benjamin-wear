@@ -513,3 +513,25 @@ function placeOrder() {
         }
     });
 }
+
+function forgotPassword() {
+    const email = document.getElementById('login-email').value;
+
+    if (!email) {
+        alert('Please enter your email address first!');
+        return;
+    }
+
+    // Send the email to your Flask backend
+    fetch('/api/forgot-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message); // This will show the response from your server
+    });
+}
