@@ -1,5 +1,3 @@
-
-
 // ============================================
 // CART FUNCTIONALITY
 // ============================================
@@ -7,7 +5,23 @@
 let cartCount = 0;
 let cartItems = [];
 
-function addToCart(productName, price) {
+function askQuantity(productName, price) {
+    let quantity = prompt(`How many ${productName} do you want to add?`, "1");
+    
+    if (quantity === null || quantity === "") {
+        quantity = 1;
+    }
+    
+    quantity = parseInt(quantity);
+    if (isNaN(quantity) || quantity < 1) {
+        quantity = 1;
+    }
+    
+    addToCartWithQuantity(productName, price, quantity);
+}
+
+function addToCartWithQuantity(productName, price, quantity) {
+    // Show loading state
     const buttons = document.querySelectorAll('.btn-add');
     buttons.forEach(btn => {
         if (btn.textContent.includes('Add to Cart')) {
@@ -16,6 +30,7 @@ function addToCart(productName, price) {
         }
     });
 
+    // Send to Flask backend
     fetch('/api/add-to-cart', {
         method: 'POST',
         headers: {
@@ -23,17 +38,19 @@ function addToCart(productName, price) {
         },
         body: JSON.stringify({ 
             product: productName, 
-            price: price 
+            price: price,
+            quantity: quantity 
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            cartCount++;
+            cartCount += quantity; // Increase cart count by the quantity!
             document.getElementById('cartCount').textContent = cartCount;
-            cartItems.push({ name: productName, price: price });
+            cartItems.push({ name: productName, price: price, quantity: quantity }); // Add quantity to cart
             showNotification(data.message);
             
+            // Animate cart icon
             const cartIcon = document.getElementById('cartIcon');
             cartIcon.style.transform = 'scale(1.3)';
             setTimeout(() => {
@@ -44,12 +61,13 @@ function addToCart(productName, price) {
         }
     })
     .catch(error => {
-        cartCount++;
+        cartCount += quantity; // Fallback
         document.getElementById('cartCount').textContent = cartCount;
-        cartItems.push({ name: productName, price: price });
-        showNotification(`${productName} added to cart! 🛒`);
+        cartItems.push({ name: productName, price: price, quantity: quantity });
+        showNotification(`${quantity} x ${productName} added to cart! 🛒`);
     })
     .finally(() => {
+        // Reset buttons
         const buttons = document.querySelectorAll('.btn-add');
         buttons.forEach(btn => {
             btn.textContent = 'Add to Cart';
@@ -58,6 +76,10 @@ function addToCart(productName, price) {
     });
 }
 
+// ============================================
+// SHOP NOW BUTTON
+// ============================================
+
 function shopNow() {
     document.getElementById('products').scrollIntoView({ 
         behavior: 'smooth' 
@@ -65,61 +87,130 @@ function shopNow() {
     showNotification('Check out our latest collection! 👕');
 }
 
-
-const contactForm = document.getElementById('contactForm');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+// ============================================
+// LOGIN FUNCTIONALITY (Only ONE version here!)
+// ============================================
+const loginForm = document.getElementById('loginForm');
+if (loginForm) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const subject = document.getElementById('subject').value;
-        const message = document.getElementById('message').value.trim();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const remember = document.getElementById('rememberMe').checked;
         
-        if (!name || !email || !subject || !message) {
+        if (!email || !password) {
             showNotification('Please fill in all fields! ⚠️');
             return;
         }
         
-        const submitBtn = this.querySelector('.btn-submit');
-        submitBtn.textContent = 'Sending...';
-        submitBtn.disabled = true;
+        const loginBtn = this.querySelector('.btn-login');
+        loginBtn.textContent = 'Logging in...';
+        loginBtn.disabled = true;
         
-        fetch('/api/contact', {
+        fetch('/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-                name: name, 
                 email: email, 
-                subject: subject,
-                message: message 
+                password: password 
             })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 showNotification(data.message);
-                document.getElementById('contactForm').reset();
+                if (remember) {
+                    localStorage.setItem('userEmail', email);
+                } else {
+                    localStorage.removeItem('userEmail');
+                }
+                document.getElementById('loginForm').reset();
             } else {
-                showNotification(data.error || 'Error sending message! ❌');
+                showNotification(data.error || 'Login failed! ❌');
             }
         })
         .catch(error => {
-            showNotification(`Thank you ${name}! We'll get back to you soon! 📧`);
-            document.getElementById('contactForm').reset();
+            showNotification(`Welcome back, ${email.split('@')[0]}! ✅`);
+            if (remember) {
+                localStorage.setItem('userEmail', email);
+            }
+            document.getElementById('loginForm').reset();
         })
         .finally(() => {
-            submitBtn.textContent = 'Send Message';
-            submitBtn.disabled = false;
+            loginBtn.textContent = 'Login';
+            loginBtn.disabled = false;
         });
     });
 }
 
+// ============================================
+// CONTACT FORM FUNCTIONALITY
+// ============================================
+
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value.trim();
+    
+    if (!name || !email || !subject || !message) {
+        showNotification('Please fill in all fields! ⚠️');
+        return;
+    }
+    
+    // Show loading
+    const submitBtn = this.querySelector('.btn-submit');
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+    
+    // Send to Flask backend
+    fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            name: name, 
+            email: email, 
+            subject: subject,
+            message: message 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message);
+            document.getElementById('contactForm').reset();
+        } else {
+            showNotification(data.error || 'Error sending message! ❌');
+        }
+    })
+    .catch(error => {
+        showNotification(`Thank you ${name}! We'll get back to you soon! 📧`);
+        document.getElementById('contactForm').reset();
+    })
+    .finally(() => {
+        submitBtn.textContent = 'Send Message';
+        submitBtn.disabled = false;
+    });
+});
+
+// ============================================
+// SOCIAL LINKS
+// ============================================
+
 function socialLink(platform) {
     showNotification(`Opening ${platform}... 📱`);
 }
+
+// ============================================
+// NOTIFICATION SYSTEM
+// ============================================
 
 function showNotification(message, type = 'info') {
     const existing = document.querySelector('.notification');
@@ -148,6 +239,10 @@ function showNotification(message, type = 'info') {
         }, 500);
     }, 3000);
 }
+
+// ============================================
+// KEYBOARD SHORTCUTS
+// ============================================
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'c' || e.key === 'C') {
@@ -179,6 +274,9 @@ document.addEventListener('keydown', function(e) {
         showNotification('Scrolled to top! ⬆️');
     }
 });
+// ============================================
+// CART ICON CLICK - SHOW CART SUMMARY
+// ============================================
 
 const cartIcon = document.getElementById('cartIcon');
 if (cartIcon) {
@@ -195,14 +293,14 @@ if (cartIcon) {
                 data.items.forEach((item, index) => {
                     itemsHtml += `
                         <div class="cart-item">
-                            <span>${index + 1}. ${item.name} - $${item.price}</span>
+                            <span>${index + 1}. ${item.name} (x${item.quantity || 1}) - $${item.price} / ₦${Math.round(item.price * (data.total_ngn / data.total))}</span>
                             <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
                         </div>
                     `;
                 });
                 
                 document.getElementById('cartItemsList').innerHTML = itemsHtml;
-                document.querySelector('.cart-total').textContent = `Total: $${data.total}`;
+                document.querySelector('.cart-total').textContent = `Total: $${data.total} / ₦${data.total_ngn}`;
                 document.getElementById('cartModal').style.display = 'flex';
             })
             .catch(error => {
@@ -214,15 +312,19 @@ if (cartIcon) {
             });
     });
 }
+                
+// ============================================
+// AUTO-LOAD FROM LOCALSTORAGE
+// ============================================
 
 window.addEventListener('load', function() {
     const savedEmail = localStorage.getItem('userEmail');
     if (savedEmail) {
-        document.getElementById('login-email').value = savedEmail;
-        document.getElementById('rememberMe').checked = true;
-        setTimeout(() => {
-            showNotification(`Welcome back, ${savedEmail.split('@')[0]}! 👋`, 'success');
-        }, 500);
+        const emailInput = document.getElementById('login-email');
+        if (emailInput) {
+            emailInput.value = savedEmail;
+            document.getElementById('rememberMe').checked = true;
+        }
     }
     
     fetch('/api/get-cart')
@@ -250,22 +352,14 @@ window.addEventListener('load', function() {
     });
 });
 
-      
-
 // ============================================
 // SIGN UP / LOGIN SECTION TOGGLING
 // ============================================
-// Handle Sign Up Link
+
 const signupBtn = document.getElementById('signupLink');
 if (signupBtn) {
-    signupBtn.addEventListener('click', (e) => {
-        e.preventDefault(); 
-       
-    });
 }
 
-
-// Handle Register Form
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
@@ -286,7 +380,6 @@ if (registerForm) {
         
         if (data.success) {
             alert('Account created successfully! Please login.');
-
         } else {
             alert(data.error || 'Registration failed. Please try again.');
         }
@@ -313,7 +406,6 @@ function submitRegister() {
     .then(data => {
         if (data.success) {
             alert('Account created successfully! Please login.');
-           
         } else {
             alert(data.error || 'Registration failed. Please try again.');
         }
@@ -353,15 +445,16 @@ function submitLogin() {
     });
 }
 
-
 function togglePassword(inputId, button) {
     const input = document.getElementById(inputId);
-    if (input.type === 'password') {
-        input.type = 'text';
-        button.textContent = '🙈'; // Change to "hide" icon
-    } else {
-        input.type = 'password';
-        button.textContent = '👁️'; // Change to "show" icon
+    if (input) {
+        if (input.type === 'password') {
+            input.type = 'text';
+            button.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            button.textContent = '👁️';
+        }
     }
 }
 
@@ -369,9 +462,8 @@ function addProduct() {
     const name = document.getElementById('name').value;
     const price = document.getElementById('price').value;
     const image = document.getElementById('image').value;
-    const category = document.getElementById('category').value;
 
-    if (!name || !price || !image || !category) {
+    if (!name || !price || !image) {
         alert('Please fill in all fields!');
         return;
     }
@@ -381,7 +473,7 @@ function addProduct() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name: name, price: price, image: image, category: category })
+        body: JSON.stringify({ name: name, price: price, image: image })
     })
     .then(response => response.json())
     .then(data => {
@@ -438,7 +530,6 @@ function clearCart() {
     });
 }
 
-
 // Load products for deletion
 function loadProductsForDelete() {
     fetch('/api/get-products')
@@ -469,12 +560,11 @@ function deleteProduct(id) {
         .then(response => response.json())
         .then(data => {
             alert(data.message);
-            loadProductsForDelete(); // Refresh the list
+            loadProductsForDelete();
         });
     }
 }
 
-// Load products when the admin page loads
 window.addEventListener('load', function() {
     if (document.getElementById('productList')) {
         loadProductsForDelete();
@@ -511,27 +601,5 @@ function placeOrder() {
         } else {
             alert(data.error || 'Could not place order.');
         }
-    });
-}
-
-function forgotPassword() {
-    const email = document.getElementById('login-email').value;
-
-    if (!email) {
-        alert('Please enter your email address first!');
-        return;
-    }
-
-    // Send the email to your Flask backend
-    fetch('/api/forgot-password', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email: email })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message); // This will show the response from your server
     });
 }

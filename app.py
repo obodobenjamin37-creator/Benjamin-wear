@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import json
 import os
+import requests
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -48,8 +49,27 @@ class User(db.Model):
 def home():
     if 'user' not in session:
         return redirect(url_for('login_page'))
+    
+    # Get all products from database
     products = Product.query.all()
-    return render_template('index.html', products=products)
+    
+    # Fetch the current exchange rate (USD to NGN)
+    try:
+        response = requests.get('https://open.er-api.com/v6/latest/USD')
+        data = response.json()
+        exchange_rate = data['rates']['NGN']
+    except Exception as e:
+        # If API fails, fallback to a default rate (e.g., 1600)
+        exchange_rate = 1600
+    
+    # Convert prices to Naira for display
+    converted_products = []
+    for product in products:
+        product.price_ngn = round(product.price * exchange_rate, 2)
+        converted_products.append(product)
+    
+    return render_template('index.html', products=converted_products, exchange_rate=exchange_rate)
+
 
 @app.route('/logout')
 def logout_page():
@@ -99,7 +119,6 @@ def delete_product(id):
 # ============================================
 # API ENDPOINTS
 # ============================================
-
 @app.route('/api/add-to-cart', methods=['POST'])
 def add_to_cart():
     """Add item to cart"""
@@ -107,7 +126,8 @@ def add_to_cart():
         data = request.json
         product_name = data.get('product')
         price = data.get('price')
-        
+        quantity = data.get('quantity', 1)
+         
         # Initialize cart in session if it doesn't exist
         if 'cart' not in session:
             session['cart'] = []
@@ -115,13 +135,14 @@ def add_to_cart():
         # Add item to cart
         session['cart'].append({
             'name': product_name,
-            'price': price
+            'price': price,
+            'quantity': quantity
         })
         session.modified = True
         
         return jsonify({
             'success': True,
-            'message': f'{product_name} added to cart! 🛒',
+            'message': f'{quantity} x {product_name} added to cart! 🛒',
             'cart_count': len(session['cart'])
         })
     except Exception as e:
@@ -134,11 +155,24 @@ def add_to_cart():
 def get_cart():
     """Get current cart contents"""
     cart = session.get('cart', [])
-    total = sum(item['price'] for item in cart)
+    total = sum(item['price'] * item.get('quantity', 1) for item in cart)
+    
+    # Fetch the current exchange rate (USD to NGN)
+    try:
+        response = requests.get('https://open.er-api.com/v6/latest/USD')
+        data = response.json()
+        exchange_rate = data['rates']['NGN']
+    except Exception as e:
+        # If API fails, fallback to a default rate (e.g., 1600)
+        exchange_rate = 1600
+    
+    total_ngn = round(total * exchange_rate, 2)
+    
     return jsonify({
         'items': cart,
         'count': len(cart),
-        'total': round(total, 2)
+        'total': round(total, 2),
+        'total_ngn': total_ngn
     })
 
 @app.route('/api/clear-cart', methods=['POST'])

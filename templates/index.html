@@ -42,8 +42,8 @@
         <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
-            <p class="price">${{ product.price }}</p>
-            <button class="btn-add" onclick="addToCart('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+           <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
+         <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
         </div>
         {% endfor %}
     </div>
@@ -55,8 +55,8 @@
         <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
-            <p class="price">${{ product.price }}</p>
-            <button class="btn-add" onclick="addToCart('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+           <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
+         <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
         </div>
         {% endfor %}
     </div>
@@ -68,21 +68,20 @@
         <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
-            <p class="price">${{ product.price }}</p>
-            <button class="btn-add" onclick="addToCart('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+            <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
+           <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
         </div>
         {% endfor %}
     </div>
-    
-    <!-- Accessories Section (if you want to add it) -->
+     <!-- Accessories Section (if you want to add it) -->
     <h3 class="category-title">Accessories</h3>
     <div class="product-grid">
         {% for product in products if product.category == 'Accessories' %}
         <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
-            <p class="price">${{ product.price }}</p>
-            <button class="btn-add" onclick="addToCart('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+            <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
+           <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
         </div>
         {% endfor %}
     </div>
@@ -158,10 +157,9 @@
         <p class="cart-total"></p>
        <button onclick="placeOrder()" style="background: green; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Place Order</button>
 <button onclick="clearCart()" style="background: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Clear Cart</button>
-    </div>
 </div>
 
   <!-- Link JavaScript -->
-<script src="/static/script.js?v=9000"></script>
+<script src="/static/script.js?v=996699"></script>
 </body>
 </html>
