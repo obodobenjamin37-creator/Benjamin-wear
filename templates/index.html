@@ -38,7 +38,7 @@
     <h2>Our Collections</h2>
     <h3 class="category-title">Clothing</h3>
     <div class="product-grid">
-        {% for product in products if product.category == 'Clothing' %}
+     {% for product in products if product.category == 'Clothing' %}
         <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
@@ -51,7 +51,7 @@
     <!-- Gadgets Section -->
     <h3 class="category-title">Gadgets</h3>
     <div class="product-grid">
-        {% for product in products if product.category == 'Gadgets' %}
+{% for product in products if product.category == 'Gadgets' %}
         <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
@@ -64,7 +64,7 @@
     <!-- Shoes Section -->
     <h3 class="category-title">Shoes</h3>
     <div class="product-grid">
-        {% for product in products if product.category == 'Shoes' %}
+   {% for product in products if product.category == 'Shoes' %}
         <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
@@ -76,7 +76,7 @@
      <!-- Accessories Section (if you want to add it) -->
     <h3 class="category-title">Accessories</h3>
     <div class="product-grid">
-        {% for product in products if product.category == 'Accessories' %}
+       {% for product in products if product.category == 'Accessories' %}
         <div class="product-card">
             <img src="{{ product.image }}">
             <h3>{{ product.name }}</h3>
@@ -160,6 +160,6 @@
 </div>
 
   <!-- Link JavaScript -->
-<script src="/static/script.js?v=996699"></script>
+<script src="/static/script.js?v=909090"></script>
 </body>
 </html>

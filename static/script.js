@@ -8,11 +8,13 @@ let cartItems = [];
 function askQuantity(productName, price) {
     let quantity = prompt(`How many ${productName} do you want to add?`, "1");
     
-    if (quantity === null || quantity === "") {
-        quantity = 1;
+    // If user presses Cancel (null), stop immediately!
+    if (quantity === null) {
+        return;
     }
     
     quantity = parseInt(quantity);
+    // If empty or less than 1, set to 1
     if (isNaN(quantity) || quantity < 1) {
         quantity = 1;
     }
@@ -88,7 +90,7 @@ function shopNow() {
 }
 
 // ============================================
-// LOGIN FUNCTIONALITY (Only ONE version here!)
+// LOGIN FUNCTIONALITY (Only exists on login.html)
 // ============================================
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
@@ -150,55 +152,56 @@ if (loginForm) {
 // CONTACT FORM FUNCTIONALITY
 // ============================================
 
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const subject = document.getElementById('subject').value;
-    const message = document.getElementById('message').value.trim();
-    
-    if (!name || !email || !subject || !message) {
-        showNotification('Please fill in all fields! ⚠️');
-        return;
-    }
-    
-    // Show loading
-    const submitBtn = this.querySelector('.btn-submit');
-    submitBtn.textContent = 'Sending...';
-    submitBtn.disabled = true;
-    
-    // Send to Flask backend
-    fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            name: name, 
-            email: email, 
-            subject: subject,
-            message: message 
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification(data.message);
-            document.getElementById('contactForm').reset();
-        } else {
-            showNotification(data.error || 'Error sending message! ❌');
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value.trim();
+        
+        if (!name || !email || !subject || !message) {
+            showNotification('Please fill in all fields! ⚠️');
+            return;
         }
-    })
-    .catch(error => {
-        showNotification(`Thank you ${name}! We'll get back to you soon! 📧`);
-        document.getElementById('contactForm').reset();
-    })
-    .finally(() => {
-        submitBtn.textContent = 'Send Message';
-        submitBtn.disabled = false;
+        
+        const submitBtn = this.querySelector('.btn-submit');
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+        
+        fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                name: name, 
+                email: email, 
+                subject: subject,
+                message: message 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message);
+                document.getElementById('contactForm').reset();
+            } else {
+                showNotification(data.error || 'Error sending message! ❌');
+            }
+        })
+        .catch(error => {
+            showNotification(`Thank you ${name}! We'll get back to you soon! 📧`);
+            document.getElementById('contactForm').reset();
+        })
+        .finally(() => {
+            submitBtn.textContent = 'Send Message';
+            submitBtn.disabled = false;
+        });
     });
-});
+}
 
 // ============================================
 // SOCIAL LINKS
@@ -241,40 +244,6 @@ function showNotification(message, type = 'info') {
 }
 
 // ============================================
-// KEYBOARD SHORTCUTS
-// ============================================
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'c' || e.key === 'C') {
-        if (cartCount > 0) {
-            fetch('/api/clear-cart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                cartCount = 0;
-                cartItems = [];
-                document.getElementById('cartCount').textContent = '0';
-                showNotification(data.message || 'Cart cleared! 🗑️');
-            })
-            .catch(error => {
-                cartCount = 0;
-                cartItems = [];
-                document.getElementById('cartCount').textContent = '0';
-                showNotification('Cart cleared! 🗑️');
-            });
-        }
-    }
-    
-    if (e.key === 'Escape') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        showNotification('Scrolled to top! ⬆️');
-    }
-});
-// ============================================
 // CART ICON CLICK - SHOW CART SUMMARY
 // ============================================
 
@@ -312,7 +281,7 @@ if (cartIcon) {
             });
     });
 }
-                
+
 // ============================================
 // AUTO-LOAD FROM LOCALSTORAGE
 // ============================================
@@ -353,11 +322,15 @@ window.addEventListener('load', function() {
 });
 
 // ============================================
-// SIGN UP / LOGIN SECTION TOGGLING
+// SIGN UP / LOGIN SECTION TOGGLING (Safe Version)
 // ============================================
 
 const signupBtn = document.getElementById('signupLink');
 if (signupBtn) {
+    signupBtn.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        // (Add your signup logic here if needed)
+    });
 }
 
 const registerForm = document.getElementById('registerForm');
@@ -462,6 +435,7 @@ function addProduct() {
     const name = document.getElementById('name').value;
     const price = document.getElementById('price').value;
     const image = document.getElementById('image').value;
+    const category = document.getElementById('category').value;
 
     if (!name || !price || !image) {
         alert('Please fill in all fields!');
@@ -473,7 +447,12 @@ function addProduct() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name: name, price: price, image: image })
+        body: JSON.stringify({ 
+            name: name, 
+            price: price, 
+            image: image,
+            category: category 
+        })
     })
     .then(response => response.json())
     .then(data => {
@@ -488,6 +467,9 @@ function addProduct() {
         alert('There was a problem connecting to the server. Please try again.');
     });
 }
+// ============================================
+// CART MANAGEMENT FUNCTIONS
+// ============================================
 
 function closeCart() {
     document.getElementById('cartModal').style.display = 'none';
@@ -530,7 +512,10 @@ function clearCart() {
     });
 }
 
-// Load products for deletion
+// ============================================
+// ADMIN PANEL - DELETE PRODUCTS
+// ============================================
+
 function loadProductsForDelete() {
     fetch('/api/get-products')
         .then(response => response.json())
@@ -548,7 +533,6 @@ function loadProductsForDelete() {
             });
         });
 }
-
 function deleteProduct(id) {
     if (confirm('Are you sure you want to delete this product?')) {
         fetch(`/api/products/delete/${id}`, {
@@ -565,13 +549,10 @@ function deleteProduct(id) {
     }
 }
 
-window.addEventListener('load', function() {
-    if (document.getElementById('productList')) {
-        loadProductsForDelete();
-    }
-});
+// ============================================
+// SMOOTH SCROLL FOR NAVIGATION
+// ============================================
 
-// Smooth scroll for Navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         const targetId = this.getAttribute('href');
@@ -582,6 +563,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+
+// ============================================
+// PLACE ORDER
+// ============================================
 
 function placeOrder() {
     fetch('/api/place-order', {
