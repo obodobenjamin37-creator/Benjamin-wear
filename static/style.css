@@ -9,7 +9,7 @@
 
  
     body {
-        background-color: #800000; /* Dark Red */
+        background-color: #eeeaea; /* Dark Red */
         margin: 0;
         padding: 20px;
     }
@@ -31,8 +31,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 5%;
-  background: #e47272;
-  color: rgb(245, 243, 243);
+  background: #e9d2d2;
+  color: rgb(255, 246, 246);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -75,7 +75,7 @@
 
 .logo:hover {
   text-decoration: underline;
-  color: rgb(228, 231, 230);
+  color: rgb(9, 181, 224);
   transition: 400ms;
   animation: logoSpin 0.8s ease 0s 1;
 }
@@ -103,7 +103,7 @@
 }
 
 .nav-links a {
-  color: rgb(245, 237, 237);
+  color: rgb(8, 1, 1);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
@@ -127,7 +127,7 @@
 }
 
 .nav-links a:hover {
-  color: #0f0d0e;
+  color: #069abe;
   animation: linkHover 0.3s ease 0s 1;
 }
 
@@ -195,7 +195,7 @@
 }
 
 .remove-btn {
-    background: red;
+    background: rgb(155, 12, 12);
     color: white;
     border: none;
     padding: 5px 10px;
@@ -225,7 +225,7 @@
 
 /* ===== HERO SECTION ===== */
 .hero {
-  background: rgb(65, 65, 238);
+  background: rgb(193, 193, 206);
   color: rgb(27, 4, 4);
   text-align: center;
   padding: 5rem 2rem;
@@ -430,7 +430,7 @@
   padding: 4rem 5%;
   max-width: 500px;
   margin: 0 auto;
-  background: #6b2424;
+  background: #d4c8c8;
 }
 
 .login-section h2 {
@@ -649,7 +649,7 @@
   padding: 4rem 5%;
   max-width: 800px;
   margin: 0 auto;
-  background: #631818;
+  background: #d6cccc;
 }
 
 .contact-section h2 {
@@ -666,7 +666,7 @@
 }
 
 .contact-form {
-  background: rgb(216, 195, 195);
+  background: rgb(167, 149, 149);
   padding: 2.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
