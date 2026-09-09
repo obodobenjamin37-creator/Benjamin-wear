@@ -9,7 +9,7 @@
 
  
     body {
-        background-color: #eeeaea; /* Dark Red */
+        background-color: #ddd8d8; /* Dark Red */
         margin: 0;
         padding: 20px;
     }
@@ -31,7 +31,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 5%;
-  background: #e9d2d2;
+  background: #dacece;
   color: rgb(255, 246, 246);
   position: sticky;
   top: 0;
@@ -225,7 +225,7 @@
 
 /* ===== HERO SECTION ===== */
 .hero {
-  background: rgb(193, 193, 206);
+  background: rgb(208, 208, 209);
   color: rgb(27, 4, 4);
   text-align: center;
   padding: 5rem 2rem;
@@ -734,8 +734,8 @@
 
 /* ===== FOOTER ===== */
 footer {
-  background: #1a1a2e;
-  color: white;
+  background: #eaeaf1;
+  color: rgb(0, 0, 0);
   text-align: center;
   padding: 2rem;
   margin-top: 2rem;
@@ -746,14 +746,14 @@ footer {
 }
 
 .social-links a {
-  color: #aaa;
+  color: #050000ef;
   text-decoration: none;
   margin: 0 0.5rem;
   transition: color 0.3s;
 }
 
 .social-links a:hover {
-  color: white;
+  color: rgb(128, 2, 2);
 }
 
 /* ===== SWEET: FOOTER WAVE ===== */
