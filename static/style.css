@@ -912,9 +912,18 @@ footer::before {
     font-size: 2rem;
   }
 
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
+.product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.product-card img {
+    height: 160px;
+}
+
+.product-card h3 {
+    font-size: 1rem;
+  }  
 }
 
 /* ===== CATEGORY TITLES ===== */
