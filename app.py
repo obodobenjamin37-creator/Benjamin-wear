@@ -65,6 +65,33 @@ def home():
     return render_template('index.html', products=converted_products, exchange_rate=exchange_rate)
 
 
+@app.route('/search')
+def search():
+    if 'user' not in session:
+        return redirect(url_for('login_page'))
+    
+    query = request.args.get('q', '')
+    if query:
+        # Case-insensitive search
+        products = Product.query.filter(Product.name.ilike(f'%{query}%')).all()
+    else:
+        products = []
+    
+    # Currency conversion
+    try:
+        response = requests.get('https://open.er-api.com/v6/latest/USD')
+        data = response.json()
+        exchange_rate = data['rates']['NGN']
+    except Exception as e:
+        exchange_rate = 1600
+    
+    converted_products = []
+    for product in products:
+        product.price_ngn = round(product.price * exchange_rate, 2)
+        converted_products.append(product)
+    
+    return render_template('search_results.html', products=converted_products, query=query)
+
 @app.route('/logout')
 def logout_page():
     session.pop('user', None)

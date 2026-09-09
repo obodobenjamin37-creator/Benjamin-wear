@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Benjamin's Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9000">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><i>Benjamin's Store</i></div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/">Shop</a></li>
+            <li><a href="/">New Arrivals</a></li>
+            <li><a href="/">Sale</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+           <div class="search-container">
+      <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 5px; border-radius: 5px; border: none; width: 150px;">
+    </div>
+    <div class="cart-icon" id="cartIcon">
+      🛒 <span class="cart-count" id="cartCount">0</span>
+    </div>
+    </nav>
+
+    <section class="products" id="products">
+        <h2>Search Results for "{{ query }}"</h2>
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <img src="{{ product.image }}">
+                <h3>{{ product.name }}</h3>
+                <p class="price">${{ product.price }} / ₦{{ product.price_ngn }}</p>
+                <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+            </div>
+            {% else %}
+            <p style="text-align: center; font-size: 1.2rem;">No products found for "{{ query }}"</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <script src="/static/script.js?v=123123"></script>
+</body>
+</html>

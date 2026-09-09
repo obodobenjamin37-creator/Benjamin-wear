@@ -92,6 +92,10 @@
   }
 }
 
+.search-container {
+  margin-right: 15px;
+}
+
 .nav-links {
   display: flex;
   list-style: none;

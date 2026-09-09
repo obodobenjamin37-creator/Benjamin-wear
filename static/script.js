@@ -5,6 +5,13 @@
 let cartCount = 0;
 let cartItems = [];
 
+function searchProducts() {
+    const query = document.getElementById('searchBar').value;
+    if(query.trim() !== "") {
+        window.location.href = '/search?q=' + encodeURIComponent(query);
+    }
+}
+
 function askQuantity(productName, price) {
     let quantity = prompt(`How many ${productName} do you want to add?`, "1");
     
