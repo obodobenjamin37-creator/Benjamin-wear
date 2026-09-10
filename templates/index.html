@@ -5,11 +5,11 @@
   <meta name="google-site-verification" content="LGLpLzXosDrYfN_dCowcUuHvl0u6e-fnGPtEGLiDaJQ" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Benjamin's Store</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9000">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024f">
 </head>
 <body>
   <!-- Navigation -->
- <nav class="navbar">
+   <nav class="navbar">
     <div class="logo"><i>Benjamin's Store</i></div>
     <ul class="nav-links">
       <li><a href="#home">Home</a></li>
@@ -19,13 +19,14 @@
       <li><a href="/logout">Logout</a></li>
       <li><a href="/contact">Contact</a></li>
     </ul>
-       <div class="search-container">
-      <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 5px; border-radius: 5px; border: none; width: 150px;">
+    <div class="search-container">
+      <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 8px; border-radius: 5px; border: none; width: 200px;">
     </div>
     <div class="cart-icon" id="cartIcon">
       🛒 <span class="cart-count" id="cartCount">0</span>
     </div>
-</nav>
+  </nav>
+
   <!-- Hero Section -->
   <section class="hero" id="home">
     <div class="hero-content">
@@ -42,7 +43,11 @@
     <div class="product-grid">
      {% for product in products if product.category == 'Clothing' %}
         <div class="product-card">
-            <img src="{{ product.image }}">
+      <a href="/product/{{ product.id }}">
+    <img src="{{ product.image }}" 
+         style="cursor: pointer;" 
+         alt="{{ product.name }}">
+</a>
             <h3>{{ product.name }}</h3>
            <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
          <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
@@ -55,7 +60,11 @@
     <div class="product-grid">
 {% for product in products if product.category == 'Gadgets' %}
         <div class="product-card">
-            <img src="{{ product.image }}">
+        <a href="/product/{{ product.id }}">
+    <img src="{{ product.image }}" 
+         style="cursor: pointer;" 
+         alt="{{ product.name }}">
+</a>
             <h3>{{ product.name }}</h3>
            <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
          <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
@@ -68,7 +77,11 @@
     <div class="product-grid">
    {% for product in products if product.category == 'Shoes' %}
         <div class="product-card">
-            <img src="{{ product.image }}">
+       <a href="/product/{{ product.id }}">
+    <img src="{{ product.image }}" 
+         style="cursor: pointer;" 
+         alt="{{ product.name }}">
+</a>
             <h3>{{ product.name }}</h3>
             <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
            <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
@@ -80,7 +93,11 @@
     <div class="product-grid">
        {% for product in products if product.category == 'Accessories' %}
         <div class="product-card">
-            <img src="{{ product.image }}">
+        <a href="/product/{{ product.id }}">
+    <img src="{{ product.image }}" 
+         style="cursor: pointer;" 
+         alt="{{ product.name }}">
+</a>
             <h3>{{ product.name }}</h3>
             <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
            <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
@@ -126,7 +143,17 @@
 <button onclick="clearCart()" style="background: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Clear Cart</button>
 </div>
 
+<!-- Product Detail Modal -->
+<div id="productModal" class="product-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modalProductName">
+    <div class="product-modal-content" id="productModalContent">
+        <button class="close-btn" onclick="closeProductModal()" aria-label="Close product view">&times;</button>
+        <img id="modalProductImage" src="" alt="Product Image">
+        <h2 id="modalProductName"></h2>
+        <p class="price" id="modalProductPrice"></p>
+        <button class="btn-add" id="modalAddToCart">Add to Cart</button>
+    </div>
+</div>
   <!-- Link JavaScript -->
-<script src="/static/script.js?v=909090"></script>
+<script src="/static/script.js?v=2024f"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - Benjamin's Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9000">
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024f">
 </head>
 <body>
     <!-- Navigation -->
@@ -18,8 +18,10 @@
             <li><a href="/logout">Logout</a></li>
             <li><a href="/contact">Contact</a></li>
         </ul>
+        <div class="search-container">
+            <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 8px; border-radius: 5px; border: none; width: 200px;">
+        </div>
         <div class="cart-icon" id="cartIcon">
-            <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 5px; border-radius: 5px; border: none; width: 150px;">
             🛒 <span class="cart-count" id="cartCount">0</span>
         </div>
     </nav>
@@ -73,6 +75,6 @@
     </div>
 
     <!-- Link JavaScript -->
-    <script src="/static/script.js?v=123123"></script>
+<script src="/static/script.js?v=2024f"></script>
 </body>
 </html>

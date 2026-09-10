@@ -5,6 +5,88 @@
 let cartCount = 0;
 let cartItems = [];
 
+// ============================================
+// PRODUCT DETAIL MODAL
+// ============================================
+let currentProduct = { id: null, name: '', price: 0, image: '' };
+
+function openProductModal(id, name, image, price, priceNgn) {
+    // Convert values to proper types (data attributes return strings)
+    id = parseInt(id);
+    price = parseFloat(price);
+    priceNgn = priceNgn ? parseFloat(priceNgn) : null;
+
+    // Error handling: missing data
+    if (!id || !name || !price) {
+        if (typeof showNotification === 'function') {
+            showNotification('Product information is missing! ⚠️');
+        } else {
+            alert('Product information is missing!');
+        }
+        return;
+    }
+
+    if (!image) {
+        image = 'https://via.placeholder.com/400x400?text=No+Image';
+    }
+
+    const modal = document.getElementById('productModal');
+    const modalImg = document.getElementById('modalProductImage');
+
+    if (!modal || !modalImg) {
+        console.error('Product modal HTML is missing from the page.');
+        return;
+    }
+
+    // Prevent rapid repeated opening
+    if (modal.style.display === 'flex') return;
+
+    modalImg.src = image;
+    document.getElementById('modalProductName').textContent = name;
+    document.getElementById('modalProductPrice').textContent =
+        '$' + price + (priceNgn ? ' / ₦' + priceNgn : '');
+
+    currentProduct = { id: id, name: name, price: price, image: image };
+
+    // Error handling for broken images
+    modalImg.onerror = function () {
+        this.src = 'https://via.placeholder.com/400x400?text=No+Image';
+    };
+
+    modal.style.display = 'flex';
+    // Trigger CSS transition on next frame
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    // Focus the Add to Cart button for accessibility
+    setTimeout(() => {
+        const btn = document.getElementById('modalAddToCart');
+        if (btn) btn.focus();
+    }, 100);
+}
+
+function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    // Wait for animation before hiding
+    setTimeout(() => { modal.style.display = 'none'; }, 250);
+    currentProduct = { id: null, name: '', price: 0, image: '' };
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('productModal');
+        if (modal && modal.style.display === 'flex') closeProductModal();
+    }
+});
+
+// Close on click outside the modal content
+document.addEventListener('click', function (e) {
+    const modal = document.getElementById('productModal');
+    if (modal && e.target === modal) closeProductModal();
+});
+
 function searchProducts() {
     const query = document.getElementById('searchBar').value;
     if(query.trim() !== "") {
@@ -250,44 +332,6 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// ============================================
-// CART ICON CLICK - SHOW CART SUMMARY
-// ============================================
-
-const cartIcon = document.getElementById('cartIcon');
-if (cartIcon) {
-    cartIcon.addEventListener('click', function() {
-        fetch('/api/get-cart')
-            .then(response => response.json())
-            .then(data => {
-                if (data.count === 0) {
-                    alert('Your cart is empty! 🛒');
-                    return;
-                }
-                
-                let itemsHtml = '';
-                data.items.forEach((item, index) => {
-                    itemsHtml += `
-                        <div class="cart-item">
-                            <span>${index + 1}. ${item.name} (x${item.quantity || 1}) - $${item.price} / ₦${Math.round(item.price * (data.total_ngn / data.total))}</span>
-                            <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
-                        </div>
-                    `;
-                });
-                
-                document.getElementById('cartItemsList').innerHTML = itemsHtml;
-                document.querySelector('.cart-total').textContent = `Total: $${data.total} / ₦${data.total_ngn}`;
-                document.getElementById('cartModal').style.display = 'flex';
-            })
-            .catch(error => {
-                if (cartItems.length === 0) {
-                    showNotification('Your cart is empty! 🛒');
-                } else {
-                    showNotification(`🛒 Cart (${cartItems.length} items)`);
-                }
-            });
-    });
-}
 
 // ============================================
 // DRAGGABLE CART ICON
@@ -309,7 +353,7 @@ if (cartIcon) {
         cartIcon.style.right = 'auto';
     }
 
-    function startDrag(clientX, clientY) {
+        function startDrag(clientX, clientY) {
         isDragging = true;
         hasMoved = false;
         const rect = cartIcon.getBoundingClientRect();
@@ -317,10 +361,17 @@ if (cartIcon) {
         startY = clientY;
         initialLeft = rect.left;
         initialTop = rect.top;
+
+        // Lock position explicitly before drag starts
+        cartIcon.style.left = rect.left + 'px';
+        cartIcon.style.top = rect.top + 'px';
+        cartIcon.style.right = 'auto';
+        cartIcon.style.bottom = 'auto';
+
         cartIcon.classList.add('dragging');
     }
 
-    function moveDrag(clientX, clientY) {
+      function moveDrag(clientX, clientY) {
         if (!isDragging) return;
         const dx = clientX - startX;
         const dy = clientY - startY;
@@ -337,19 +388,23 @@ if (cartIcon) {
         newLeft = Math.max(0, Math.min(window.innerWidth - cartIcon.offsetWidth, newLeft));
         newTop = Math.max(0, Math.min(window.innerHeight - cartIcon.offsetHeight, newTop));
 
+        // Lock position explicitly
         cartIcon.style.left = newLeft + 'px';
         cartIcon.style.top = newTop + 'px';
         cartIcon.style.right = 'auto';
+        cartIcon.style.bottom = 'auto';
     }
 
-    function endDrag() {
+        function endDrag() {
         if (isDragging) {
             isDragging = false;
             cartIcon.classList.remove('dragging');
             if (hasMoved) {
                 localStorage.setItem('cartIconPosition', JSON.stringify({
                     left: cartIcon.style.left,
-                    top: cartIcon.style.top
+                    top: cartIcon.style.top,
+                    right: cartIcon.style.right,
+                    bottom: cartIcon.style.bottom
                 }));
             }
         }
@@ -381,15 +436,47 @@ if (cartIcon) {
 
     document.addEventListener('touchend', endDrag);
 
-    // Prevent the cart modal from opening if you were just dragging
-    cartIcon.addEventListener('click', (e) => {
+    // Cart icon click: opens the cart, but ignores clicks right after a drag
+    cartIcon.addEventListener('click', function(e) {
+        // If the user was just dragging, don't open the cart
         if (hasMoved) {
             e.preventDefault();
             e.stopPropagation();
             hasMoved = false;
             return false;
         }
-    }, true);
+        
+        // Otherwise, open the cart modal
+        fetch('/api/get-cart')
+            .then(response => response.json())
+            .then(data => {
+                if (data.count === 0) {
+                    alert('Your cart is empty! 🛒');
+                    return;
+                }
+                
+                let itemsHtml = '';
+                data.items.forEach((item, index) => {
+                    itemsHtml += `
+                        <div class="cart-item">
+                            <span>${index + 1}. ${item.name} (x${item.quantity || 1}) - $${item.price} / ₦${Math.round(item.price * (data.total_ngn / data.total))}</span>
+                            <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('cartItemsList').innerHTML = itemsHtml;
+                document.querySelector('.cart-total').textContent = `Total: $${data.total} / ₦${data.total_ngn}`;
+                document.getElementById('cartModal').style.display = 'flex';
+            })
+            .catch(error => {
+                if (cartItems.length === 0) {
+                    showNotification('Your cart is empty! 🛒');
+                } else {
+                    showNotification(`🛒 Cart (${cartItems.length} items)`);
+                }
+            });
+    }, false);
 })();
 
 // ============================================
@@ -577,6 +664,7 @@ function addProduct() {
         alert('There was a problem connecting to the server. Please try again.');
     });
 }
+
 // ============================================
 // CART MANAGEMENT FUNCTIONS
 // ============================================
@@ -698,3 +786,19 @@ function placeOrder() {
         }
     });
 }
+
+// Add to Cart from the Product Modal
+window.addEventListener('load', function() {
+    const modalAddBtn = document.getElementById('modalAddToCart');
+    if (modalAddBtn) {
+        modalAddBtn.addEventListener('click', function() {
+            if (!currentProduct.name || currentProduct.price <= 0) {
+                showNotification('Product data missing! ⚠️');
+                return;
+            }
+            // Reuse the existing cart system — no duplicate logic
+            closeProductModal();
+            askQuantity(currentProduct.name, currentProduct.price);
+        });
+    }
+});

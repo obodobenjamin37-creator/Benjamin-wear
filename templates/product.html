@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - Benjamin's Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024f">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo"><i>Benjamin's Store</i></div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/">Shop</a></li>
+            <li><a href="/">Arrivals</a></li>
+            <li><a href="/">Sales</a></li>
+            <li><a href="/logout">Logout</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+        <div class="search-container">
+            <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 8px; border-radius: 5px; border: none; width: 200px;">
+        </div>
+        <div class="cart-icon" id="cartIcon">
+            🛒 <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </nav>
+
+    <!-- Product Detail Section -->
+    <section class="product-detail-section">
+        <div class="product-detail-container">
+            <div class="product-detail-image">
+                <img src="{{ product.image }}" alt="{{ product.name }}">
+            </div>
+            <div class="product-detail-info">
+                <h1>{{ product.name }}</h1>
+                <p class="product-detail-category">Category: {{ product.category }}</p>
+                <p class="product-detail-price">${{ product.price }} <span style="color: green;">/ ₦{{ product.price_ngn }}</span></p>
+                <p class="product-detail-description">
+                    This premium quality {{ product.name }} is one of our best sellers. 
+                    Add it to your cart now and enjoy fast delivery and hassle-free returns.
+                </p>
+                <button class="btn-add btn-add-large" 
+                        onclick="askQuantity('{{ product.name }}', {{ product.price }})">
+                    Add to Cart
+                </button>
+                <a href="/" class="back-link">← Back to Shop</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="cart-modal" style="display: none;">
+        <div class="cart-modal-content">
+            <span class="close-btn" onclick="closeCart()">&times;</span>
+            <h2>Your Cart</h2>
+            <div id="cartItemsList"></div>
+            <p class="cart-total"></p>
+            <button onclick="placeOrder()" style="background: green; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Place Order</button>
+            <button onclick="clearCart()" style="background: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Clear Cart</button>
+        </div>
+    </div>
+
+    <!-- Link JavaScript -->
+    <script src="/static/script.js?v=2024f"></script>
+</body>
+</html>

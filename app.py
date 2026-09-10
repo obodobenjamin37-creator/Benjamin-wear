@@ -112,6 +112,27 @@ def signup():
 def admin():
     return render_template('admin.html')
 
+@app.route('/product/<int:id>')
+def product_page(id):
+    if 'user' not in session:
+        return redirect(url_for('login_page'))
+    
+    product = Product.query.get(id)
+    if not product:
+        return "Product not found", 404
+    
+    # Currency conversion
+    try:
+        response = requests.get('https://open.er-api.com/v6/latest/USD')
+        data = response.json()
+        exchange_rate = data['rates']['NGN']
+    except Exception as e:
+        exchange_rate = 1600
+    
+    product.price_ngn = round(product.price * exchange_rate, 2)
+    
+    return render_template('product.html', product=product)
+
 @app.route('/contact')
 def contact_page():
     if 'user' not in session:
