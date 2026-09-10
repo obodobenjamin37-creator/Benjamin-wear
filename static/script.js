@@ -350,7 +350,7 @@ function showNotification(message, type = 'info') {
         cartIcon.classList.add('dragging');
     }
 
-    function moveDrag(clientX, clientY) {
+      function moveDrag(clientX, clientY) {
         if (!isDragging) return;
         const dx = clientX - startX;
         const dy = clientY - startY;
@@ -359,11 +359,22 @@ function showNotification(message, type = 'info') {
             hasMoved = true;
         }
 
+        // Safe margin so the icon never touches the very edge
+        const margin = 8;
+
+        // Use documentElement (excludes scrollbar) for accurate bounds
+        const viewportWidth = document.documentElement.clientWidth;
+        const viewportHeight = document.documentElement.clientHeight;
+
+        const iconWidth = cartIcon.offsetWidth;
+        const iconHeight = cartIcon.offsetHeight;
+
         let newLeft = initialLeft + dx;
         let newTop = initialTop + dy;
 
-        newLeft = Math.max(0, Math.min(window.innerWidth - cartIcon.offsetWidth, newLeft));
-        newTop = Math.max(0, Math.min(window.innerHeight - cartIcon.offsetHeight, newTop));
+        // Clamp to boundaries with margin
+        newLeft = Math.max(margin, Math.min(viewportWidth - iconWidth - margin, newLeft));
+        newTop = Math.max(margin, Math.min(viewportHeight - iconHeight - margin, newTop));
 
         cartIcon.style.left = newLeft + 'px';
         cartIcon.style.top = newTop + 'px';
@@ -388,6 +399,12 @@ function showNotification(message, type = 'info') {
     cartIcon.addEventListener('mousedown', (e) => {
         mouseDownPos = { x: e.clientX, y: e.clientY };
         e.preventDefault();
+    });
+
+        // If the mouse leaves the window during a drag, end it cleanly
+    document.addEventListener('mouseleave', () => {
+        mouseDownPos = null;
+        endDrag();
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -428,6 +445,12 @@ function showNotification(message, type = 'info') {
     }, { passive: false });
 
     document.addEventListener('touchend', () => {
+        touchStartPos = null;
+        endDrag();
+    });
+
+        // If touch is cancelled (e.g., user swipes off-screen), end drag
+    document.addEventListener('touchcancel', () => {
         touchStartPos = null;
         endDrag();
     });
