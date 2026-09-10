@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Benjamin's Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9000">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo"><i>Benjamin's Store</i></div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/">Shop</a></li>
+            <li><a href="/">New Arrivals</a></li>
+            <li><a href="/">Sale</a></li>
+            <li><a href="/logout">Logout</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+        <div class="cart-icon" id="cartIcon">
+            <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 5px; border-radius: 5px; border: none; width: 150px;">
+            🛒 <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </nav>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <h2>Get In Touch</h2>
+        <p>Have questions? We'd love to hear from you!</p>
+        
+        <form class="contact-form" id="contactForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="Enter your name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <select id="subject">
+                    <option value="">Select a subject</option>
+                    <option value="order">Order Inquiry</option>
+                    <option value="returns">Returns/Exchange</option>
+                    <option value="shipping">Shipping Question</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" rows="5" placeholder="Write your message here..." required></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">Send Message</button>
+        </form>
+    </section>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="cart-modal" style="display: none;">
+        <div class="cart-modal-content">
+            <span class="close-btn" onclick="closeCart()">&times;</span>
+            <h2>Your Cart</h2>
+            <div id="cartItemsList"></div>
+            <p class="cart-total"></p>
+            <button onclick="placeOrder()" style="background: green; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Place Order</button>
+            <button onclick="clearCart()" style="background: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Clear Cart</button>
+        </div>
+    </div>
+
+    <!-- Link JavaScript -->
+    <script src="/static/script.js?v=123123"></script>
+</body>
+</html>

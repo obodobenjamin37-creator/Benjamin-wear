@@ -17,7 +17,7 @@
       <li><a href="#products">New Arrivals</a></li>
       <li><a href="#products">Sale</a></li>
       <li><a href="/logout">Logout</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="/contact">Contact</a></li>
     </ul>
        <div class="search-container">
       <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 5px; border-radius: 5px; border: none; width: 150px;">
@@ -104,42 +104,7 @@
        <button type="button" onclick="submitRegister()">Sign Up</button>
     </form>
 </div>
-  <!-- Contact Form -->
-  <section class="contact-section" id="contact">
-    <h2>Get In Touch</h2>
-    <p>Have questions? We'd love to hear from you!</p>
-    
-    <form class="contact-form" id="contactForm">
-      <div class="form-group">
-        <label for="name">Full Name</label>
-        <input type="text" id="name" placeholder="Enter your name" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="Enter your email" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="subject">Subject</label>
-        <select id="subject">
-          <option value="">Select a subject</option>
-          <option value="order">Order Inquiry</option>
-          <option value="returns">Returns/Exchange</option>
-          <option value="shipping">Shipping Question</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="message">Message</label>
-        <textarea id="message" rows="5" placeholder="Write your message here..." required></textarea>
-      </div>
-      
-      <button type="submit" class="btn-submit">Send Message</button>
-    </form>
-  </section>
-
+  
   <!-- Footer -->
   <footer>
     <p>&copy; 2026 Benjamin's street store. All rights reserved.</p>

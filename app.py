@@ -112,6 +112,12 @@ def signup():
 def admin():
     return render_template('admin.html')
 
+@app.route('/contact')
+def contact_page():
+    if 'user' not in session:
+        return redirect(url_for('login_page'))
+    return render_template('contact.html')
+
 @app.route('/orders')
 def view_orders():
     if 'user' not in session:
