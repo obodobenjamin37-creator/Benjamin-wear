@@ -9,7 +9,7 @@
 
  
     body {
-        background-color: #ddd8d8; /* Dark Red */
+        background-color: #e7d0d0; /* Dark Red */
         margin: 0;
         padding: 20px;
     }
@@ -31,7 +31,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 5%;
-  background: #dacece;
+  background: #e7d0d0;
   color: rgb(255, 246, 246);
   position: sticky;
   top: 0;
@@ -225,7 +225,7 @@
 
 /* ===== HERO SECTION ===== */
 .hero {
-  background: rgb(208, 208, 209);
+  background: #e7d0d0;
   color: rgb(27, 4, 4);
   text-align: center;
   padding: 5rem 2rem;

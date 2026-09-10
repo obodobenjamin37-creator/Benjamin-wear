@@ -112,6 +112,16 @@ def signup():
 def admin():
     return render_template('admin.html')
 
+@app.route('/orders')
+def view_orders():
+    if 'user' not in session:
+        return redirect(url_for('login_page'))
+    
+    # Get all orders from the database, newest first
+    orders = Order.query.order_by(Order.date_created.desc()).all()
+    
+    return render_template('orders.html', orders=orders)
+
 
 @app.route('/api/products', methods=['POST'])
 def add_product():

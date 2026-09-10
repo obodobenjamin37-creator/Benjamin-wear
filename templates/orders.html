@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Orders - Benjamin's Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9000">
+    <style>
+        body { background: #f5f5f5; padding: 20px; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+        .orders-container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #0056b3; color: white; }
+        .order-items { font-size: 0.9em; color: #666; }
+        .btn-back { display: inline-block; margin-bottom: 20px; padding: 10px 20px; background-color: #333; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="orders-container">
+        <a href="/admin" class="btn-back">← Back to Admin</a>
+        <h1>All Customer Orders</h1>
+        
+        {% if orders %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Email</th>
+                    <th>Items Bought</th>
+                    <th>Total (USD)</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.customer_email }}</td>
+                    <td class="order-items">{{ order.items }}</td>
+                    <td>${{ order.total }}</td>
+                    <td>{{ order.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="text-align: center; font-size: 1.2rem; color: #666;">No orders have been placed yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
