@@ -121,6 +121,43 @@ def product_page(id):
     if not product:
         return "Product not found", 404
     
+    try:
+        response = requests.get('https://open.er-api.com/v6/latest/USD')
+        data = response.json()
+        exchange_rate = data['rates']['NGN']
+    except Exception as e:
+        exchange_rate = 1600
+    
+    product.price_ngn = round(product.price * exchange_rate, 2)
+    
+    return render_template('product.html', product=product)
+
+@app.route('/cart')
+def cart_page():
+    if 'user' not in session:
+        return redirect(url_for('login_page'))
+    
+    cart = session.get('cart', [])
+    total = sum(item['price'] * item.get('quantity', 1) for item in cart)
+    
+    try:
+        response = requests.get('https://open.er-api.com/v6/latest/USD')
+        data = response.json()
+        exchange_rate = data['rates']['NGN']
+    except Exception as e:
+        exchange_rate = 1600
+    
+    total_ngn = round(total * exchange_rate, 2)
+    
+    return render_template('cart.html', 
+                         cart=cart, 
+                         total=round(total, 2), 
+                         total_ngn=total_ngn)
+    
+    product = Product.query.get(id)
+    if not product:
+        return "Product not found", 404
+    
     # Currency conversion
     try:
         response = requests.get('https://open.er-api.com/v6/latest/USD')

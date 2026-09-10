@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - Benjamin's Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024g">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo"><i>Benjamin's Store</i></div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/">Shop</a></li>
+            <li><a href="/">Arrivals</a></li>
+            <li><a href="/">Sales</a></li>
+            <li><a href="/logout">Logout</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+        <div class="search-container">
+            <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 8px; border-radius: 5px; border: none; width: 200px;">
+        </div>
+        <div class="cart-icon" id="cartIcon">
+            🛒 <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </nav>
+
+    <!-- Cart Page -->
+    <section class="cart-page-section">
+        <h1>Your Cart</h1>
+        
+        {% if cart %}
+        <div class="cart-page-items">
+            {% for item in cart %}
+            <div class="cart-page-item">
+                <div class="cart-page-item-info">
+                    <span class="cart-page-item-name">{{ item.name }}</span>
+                    <span class="cart-page-item-qty">Quantity: {{ item.quantity }}</span>
+                    <span class="cart-page-item-price">${{ item.price }} / ₦{{ (item.price * (total_ngn / total if total > 0 else 0)) | round(2) }}</span>
+                </div>
+                <button class="cart-page-remove" onclick="removeFromCart({{ loop.index0 }})">Remove</button>
+            </div>
+            {% endfor %}
+            
+            <div class="cart-page-total">
+                <span>Total:</span>
+                <span>${{ total }} / ₦{{ total_ngn }}</span>
+            </div>
+            
+            <div class="cart-page-actions">
+                <button class="cart-page-place-order" onclick="placeOrder()">Place Order</button>
+                <button class="cart-page-clear" onclick="clearCart()">Clear Cart</button>
+            </div>
+        </div>
+        {% else %}
+        <p class="cart-page-empty">Your cart is empty! 🛒</p>
+        <a href="/" class="cart-page-back">← Continue Shopping</a>
+        {% endif %}
+    </section>
+
+    <script src="/static/script.js?v=2024g"></script>
+</body>
+</html>
