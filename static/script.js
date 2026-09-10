@@ -290,6 +290,109 @@ if (cartIcon) {
 }
 
 // ============================================
+// DRAGGABLE CART ICON
+// ============================================
+(function makeCartDraggable() {
+    const cartIcon = document.getElementById('cartIcon');
+    if (!cartIcon) return;
+
+    let isDragging = false;
+    let hasMoved = false;
+    let startX, startY, initialLeft, initialTop;
+
+    // Reset position if it's been saved before
+    const savedPos = localStorage.getItem('cartIconPosition');
+    if (savedPos) {
+        const pos = JSON.parse(savedPos);
+        cartIcon.style.left = pos.left;
+        cartIcon.style.top = pos.top;
+        cartIcon.style.right = 'auto';
+    }
+
+    function startDrag(clientX, clientY) {
+        isDragging = true;
+        hasMoved = false;
+        const rect = cartIcon.getBoundingClientRect();
+        startX = clientX;
+        startY = clientY;
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        cartIcon.classList.add('dragging');
+    }
+
+    function moveDrag(clientX, clientY) {
+        if (!isDragging) return;
+        const dx = clientX - startX;
+        const dy = clientY - startY;
+
+        // Only consider it a drag if the mouse moved more than 5 pixels
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            hasMoved = true;
+        }
+
+        let newLeft = initialLeft + dx;
+        let newTop = initialTop + dy;
+
+        // Keep within window boundaries
+        newLeft = Math.max(0, Math.min(window.innerWidth - cartIcon.offsetWidth, newLeft));
+        newTop = Math.max(0, Math.min(window.innerHeight - cartIcon.offsetHeight, newTop));
+
+        cartIcon.style.left = newLeft + 'px';
+        cartIcon.style.top = newTop + 'px';
+        cartIcon.style.right = 'auto';
+    }
+
+    function endDrag() {
+        if (isDragging) {
+            isDragging = false;
+            cartIcon.classList.remove('dragging');
+            if (hasMoved) {
+                localStorage.setItem('cartIconPosition', JSON.stringify({
+                    left: cartIcon.style.left,
+                    top: cartIcon.style.top
+                }));
+            }
+        }
+    }
+
+    // Mouse events
+    cartIcon.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        startDrag(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        moveDrag(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('mouseup', endDrag);
+
+    // Touch events (for mobile)
+    cartIcon.addEventListener('touchstart', (e) => {
+        startDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', endDrag);
+
+    // Prevent the cart modal from opening if you were just dragging
+    cartIcon.addEventListener('click', (e) => {
+        if (hasMoved) {
+            e.preventDefault();
+            e.stopPropagation();
+            hasMoved = false;
+            return false;
+        }
+    }, true);
+})();
+
+// ============================================
 // AUTO-LOAD FROM LOCALSTORAGE
 // ============================================
 

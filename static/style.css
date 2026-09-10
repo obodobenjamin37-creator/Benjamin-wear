@@ -212,6 +212,33 @@
     color: black;
 }
 
+/* ===== FLOATING DRAGGABLE CART ICON ===== */
+.cart-icon {
+    position: fixed !important;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    cursor: grab;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 30px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.cart-icon:hover {
+    background: rgba(0, 0, 0, 0.5);
+    transform: scale(1.05);
+}
+
+.cart-icon.dragging {
+    cursor: grabbing;
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.7);
+    transition: none;
+}
 
 /* ===== SWEET: PULSE ANIMATION ===== */
 @keyframes pulse {
