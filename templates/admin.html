@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024f">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024m">
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 40px; }
         .admin-container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -19,7 +19,7 @@
 <body>
     <div class="admin-container">
         <h1>Add New Product</h1>
-        <a href="/orders" style="display: block; text-align: center; margin-bottom: 20px; color: #0056b3; font-weight: bold; text-decoration: underline;">View All Orders →</a>           
+        <a href="/orders" style="display: block; text-align: center; margin-bottom: 20px; color: #0056b3; font-weight: bold; text-decoration: underline;">View All Orders →</a>
         <form id="adminForm">
             <div class="form-group">
                 <label for="name">Product Name</label>
@@ -30,24 +30,24 @@
                 <label for="price">Price ($)</label>
                 <input type="number" id="price" step="0.01" placeholder="e.g., 25.99" required>
             </div>
+
             <div class="form-group">
                 <label for="image">Image URL</label>
                 <input type="url" id="image" placeholder="e.g., https://example.com/shirt.jpg" required>
             </div>
+
             <div class="form-group">
-    <label for="category">Category</label>
-    <input type="text" id="category" placeholder="e.g., Clothing, Gadgets, Shoes" required>
-</div>
+                <label for="category">Category</label>
+                <input type="text" id="category" placeholder="e.g., Clothing, Gadgets, Shoes" required>
+            </div>
+
             <button type="button" onclick="addProduct()">Add Product</button>
         </form>
-                <h2 style="margin-top: 40px; text-align: center;">Delete Product</h2>
-            <div id="productList"></div>
+
+        <h2 style="margin-top: 40px; text-align: center;">Delete Product</h2>
+        <div id="productList"></div>
     </div>
-    <script>
-    window.addEventListener('load', function() {
-        loadProductsForDelete();
-    });
-</script>
-<script src="/static/script.js?v=2024j"></script>
+
+    <script src="/static/script.js?v=2024m"></script>
 </body>
 </html>

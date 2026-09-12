@@ -97,18 +97,116 @@ function searchProducts() {
 // ============================================
 // ADD TO CART
 // ============================================
+let quantityModalData = { name: '', price: 0 };
+
 function askQuantity(productName, price) {
-    let quantity = prompt(`How many ${productName} do you want to add?`, "1");
-
-    if (quantity === null) return;
-
-    quantity = parseInt(quantity);
-    if (isNaN(quantity) || quantity < 1) {
-        quantity = 1;
+    if (!productName || !price || price <= 0) {
+        showNotification('Product information is missing! ⚠️');
+        return;
     }
 
-    addToCartWithQuantity(productName, price, quantity);
+    quantityModalData = { name: productName, price: parseFloat(price) };
+
+    document.getElementById('quantityProductName').textContent = productName;
+    document.getElementById('quantityProductPrice').textContent =
+        '$' + parseFloat(price).toFixed(2);
+    document.getElementById('quantityInput').value = 1;
+    updateQuantityTotal();
+
+    const modal = document.getElementById('quantityModal');
+    if (!modal) {
+        let qty = prompt(`How many ${productName}?`, "1");
+        if (qty === null) return;
+        qty = parseInt(qty);
+        if (isNaN(qty) || qty < 1) qty = 1;
+        addToCartWithQuantity(productName, price, qty);
+        return;
+    }
+
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => modal.classList.add('open'));
+
+    setTimeout(() => {
+        const confirmBtn = modal.querySelector('.qty-confirm');
+        if (confirmBtn) confirmBtn.focus();
+    }, 100);
 }
+
+function adjustQuantity(delta) {
+    const input = document.getElementById('quantityInput');
+    if (!input) return;
+    let current = parseInt(input.value) || 1;
+    let newValue = current + delta;
+    if (newValue < 1) newValue = 1;
+    if (newValue > 999) newValue = 999;
+    input.value = newValue;
+    updateQuantityTotal();
+}
+
+function updateQuantityTotal() {
+    const input = document.getElementById('quantityInput');
+    if (!input) return;
+    let qty = parseInt(input.value);
+    if (isNaN(qty) || qty < 1) qty = 1;
+    if (qty > 999) qty = 999;
+    const total = (quantityModalData.price * qty).toFixed(2);
+    const totalEl = document.getElementById('quantityTotal');
+    if (totalEl) totalEl.textContent = '$' + total;
+}
+
+function confirmQuantity() {
+    const input = document.getElementById('quantityInput');
+    let qty = parseInt(input.value);
+    if (isNaN(qty) || qty < 1) qty = 1;
+    if (qty > 999) qty = 999;
+    const { name, price } = quantityModalData;
+    if (!name || !price) {
+        closeQuantityModal();
+        return;
+    }
+    closeQuantityModal();
+    setTimeout(() => {
+        addToCartWithQuantity(name, price, qty);
+    }, 180);
+}
+
+
+function closeQuantityModal() {
+    const modal = document.getElementById('quantityModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        quantityModalData = { name: '', price: 0 };
+    }, 180);
+}
+
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('quantityModal');
+        if (modal && modal.style.display === 'flex') closeQuantityModal();
+    }
+});
+
+document.addEventListener('click', function (e) {
+    const modal = document.getElementById('quantityModal');
+    if (modal && e.target === modal) closeQuantityModal();
+});
+
+// Allow typing in the quantity input — auto-correct invalid values
+document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'quantityInput') {
+        let qty = parseInt(e.target.value);
+        if (isNaN(qty) || qty < 1) qty = 1;
+        if (qty > 999) qty = 999;
+        // Only overwrite if the value is actually invalid (to avoid cursor jumping while typing)
+        if (String(qty) !== e.target.value) {
+            e.target.value = qty;
+        }
+        updateQuantityTotal();
+    }
+});
 
 function addToCartWithQuantity(productName, price, quantity) {
     const buttons = document.querySelectorAll('.btn-add');

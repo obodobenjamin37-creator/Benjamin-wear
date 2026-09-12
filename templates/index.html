@@ -5,11 +5,11 @@
   <meta name="google-site-verification" content="LGLpLzXosDrYfN_dCowcUuHvl0u6e-fnGPtEGLiDaJQ" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Benjamin's Store</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024f">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024ns">
 </head>
 <body>
   <!-- Navigation -->
-   <nav class="navbar">
+  <nav class="navbar">
     <div class="logo"><i>Benjamin's Store</i></div>
     <ul class="nav-links">
       <li><a href="#home">Home</a></li>
@@ -37,20 +37,18 @@
   </section>
 
   <!-- Featured Products -->
-<section class="products" id="products">
+  <section class="products" id="products">
     <h2>Our Collections</h2>
     <h3 class="category-title">Clothing</h3>
     <div class="product-grid">
      {% for product in products if product.category == 'Clothing' %}
         <div class="product-card">
-      <a href="/product/{{ product.id }}">
-    <img src="{{ product.image }}" 
-         style="cursor: pointer;" 
-         alt="{{ product.name }}">
-</a>
-            <h3>{{ product.name }}</h3>
-           <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
-         <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+          <a href="/product/{{ product.id }}">
+            <img src="{{ product.image }}" style="cursor: pointer;" alt="{{ product.name }}">
+          </a>
+          <h3>{{ product.name }}</h3>
+          <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
+          <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
         </div>
         {% endfor %}
     </div>
@@ -60,14 +58,12 @@
     <div class="product-grid">
 {% for product in products if product.category == 'Gadgets' %}
         <div class="product-card">
-        <a href="/product/{{ product.id }}">
-    <img src="{{ product.image }}" 
-         style="cursor: pointer;" 
-         alt="{{ product.name }}">
-</a>
-            <h3>{{ product.name }}</h3>
-           <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
-         <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+          <a href="/product/{{ product.id }}">
+            <img src="{{ product.image }}" style="cursor: pointer;" alt="{{ product.name }}">
+          </a>
+          <h3>{{ product.name }}</h3>
+          <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
+          <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
         </div>
         {% endfor %}
     </div>
@@ -77,50 +73,46 @@
     <div class="product-grid">
    {% for product in products if product.category == 'Shoes' %}
         <div class="product-card">
-       <a href="/product/{{ product.id }}">
-    <img src="{{ product.image }}" 
-         style="cursor: pointer;" 
-         alt="{{ product.name }}">
-</a>
-            <h3>{{ product.name }}</h3>
-            <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
-           <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+          <a href="/product/{{ product.id }}">
+            <img src="{{ product.image }}" style="cursor: pointer;" alt="{{ product.name }}">
+          </a>
+          <h3>{{ product.name }}</h3>
+          <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
+          <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
         </div>
         {% endfor %}
     </div>
-     <!-- Accessories Section (if you want to add it) -->
+     <!-- Accessories Section -->
     <h3 class="category-title">Accessories</h3>
     <div class="product-grid">
        {% for product in products if product.category == 'Accessories' %}
         <div class="product-card">
-        <a href="/product/{{ product.id }}">
-    <img src="{{ product.image }}" 
-         style="cursor: pointer;" 
-         alt="{{ product.name }}">
-</a>
-            <h3>{{ product.name }}</h3>
-            <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
-           <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
+          <a href="/product/{{ product.id }}">
+            <img src="{{ product.image }}" style="cursor: pointer;" alt="{{ product.name }}">
+          </a>
+          <h3>{{ product.name }}</h3>
+          <p class="price">${{ product.price }} <span style="color: green; font-size: 0.9em;">/ ₦{{ product.price_ngn }}</span></p>
+          <button class="btn-add" onclick="askQuantity('{{ product.name }}', {{ product.price }})">Add to Cart</button>
         </div>
         {% endfor %}
     </div>
-</section>
+  </section>
     
- <!-- Sign Up Section -->
-<div id="signupSection" style="display: none;">
+  <!-- Sign Up Section -->
+  <div id="signupSection" style="display: none;">
     <h2>Create Your Account</h2>
     <form class="login-form" id="registerForm">
-        <div class="form-group">
-            <label for="register-email">Email Address</label>
-            <input type="email" id="register-email" placeholder="Enter your email" required>
-        </div>
-        <div class="form-group">
-            <label for="register-password">Password</label>
-            <input type="password" id="register-password" placeholder="Create a password" required>
-        </div>
-       <button type="button" onclick="submitRegister()">Sign Up</button>
+      <div class="form-group">
+        <label for="register-email">Email Address</label>
+        <input type="email" id="register-email" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="register-password">Password</label>
+        <input type="password" id="register-password" placeholder="Create a password" required>
+      </div>
+      <button type="button" onclick="submitRegister()">Sign Up</button>
     </form>
-</div>
+  </div>
   
   <!-- Footer -->
   <footer>
@@ -132,28 +124,49 @@
     </div>
   </footer>
 
-<!-- Cart Modal -->
-<div id="cartModal" class="cart-modal" style="display: none;">
+  <!-- Cart Modal -->
+  <div id="cartModal" class="cart-modal" style="display: none;">
     <div class="cart-modal-content">
-        <span class="close-btn" onclick="closeCart()">&times;</span>
-        <h2>Your Cart</h2>
-        <div id="cartItemsList"></div>
-        <p class="cart-total"></p>
-       <button onclick="placeOrder()" style="background: green; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Place Order</button>
-<button onclick="clearCart()" style="background: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Clear Cart</button>
-</div>
-
-<!-- Product Detail Modal -->
-<div id="productModal" class="product-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modalProductName">
-    <div class="product-modal-content" id="productModalContent">
-        <button class="close-btn" onclick="closeProductModal()" aria-label="Close product view">&times;</button>
-        <img id="modalProductImage" src="" alt="Product Image">
-        <h2 id="modalProductName"></h2>
-        <p class="price" id="modalProductPrice"></p>
-        <button class="btn-add" id="modalAddToCart">Add to Cart</button>
+      <span class="close-btn" onclick="closeCart()">&times;</span>
+      <h2>Your Cart</h2>
+      <div id="cartItemsList"></div>
+      <p class="cart-total"></p>
+      <button onclick="placeOrder()" style="background: green; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Place Order</button>
+      <button onclick="clearCart()" style="background: red; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Clear Cart</button>
     </div>
-</div>
+  </div>
+
+  <!-- Product Detail Modal -->
+  <div id="productModal" class="product-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modalProductName">
+    <div class="product-modal-content" id="productModalContent">
+      <button class="close-btn" onclick="closeProductModal()" aria-label="Close product view">&times;</button>
+      <img id="modalProductImage" src="" alt="Product Image">
+      <h2 id="modalProductName"></h2>
+      <p class="price" id="modalProductPrice"></p>
+      <button class="btn-add" id="modalAddToCart">Add to Cart</button>
+    </div>
+  </div>
+
+  <!-- Quantity Popup (FIXED — properly nested) -->
+  <div id="quantityModal" class="quantity-popup" style="display: none;">
+    <div class="quantity-popup-inner">
+      <button class="quantity-close" onclick="closeQuantityModal()" aria-label="Close">&times;</button>
+      <div class="quantity-name" id="quantityProductName"></div>
+      <div class="quantity-price" id="quantityProductPrice"></div>
+      <div class="quantity-row">
+        <button type="button" class="qty-btn" onclick="adjustQuantity(-1)">−</button>
+       <input type="number" id="quantityInput" value="1" min="1" max="999">
+        <button type="button" class="qty-btn" onclick="adjustQuantity(1)">+</button>
+        <span class="qty-total" id="quantityTotal">$0.00</span>
+      </div>
+      <div class="quantity-buttons">
+        <button type="button" class="qty-cancel" onclick="closeQuantityModal()">Cancel</button>
+        <button type="button" class="qty-confirm" onclick="confirmQuantity()">Add</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Link JavaScript -->
-<script src="/static/script.js?v=2024j"></script>
+  <script src="/static/script.js?v=2024n"></script>
 </body>
 </html>

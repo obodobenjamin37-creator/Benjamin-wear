@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.name }} - Benjamin's Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024f">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024n">
 </head>
 <body>
     <!-- Navigation -->
@@ -61,7 +61,26 @@
         </div>
     </div>
 
+    <!-- Quantity Popup -->
+<div id="quantityModal" class="quantity-popup" style="display: none;">
+    <div class="quantity-popup-inner">
+        <button class="quantity-close" onclick="closeQuantityModal()" aria-label="Close">&times;</button>
+        <div class="quantity-name" id="quantityProductName"></div>
+        <div class="quantity-price" id="quantityProductPrice"></div>
+        <div class="quantity-row">
+            <button type="button" class="qty-btn" onclick="adjustQuantity(-1)">−</button>
+            <input type="number" id="quantityInput" value="1" min="1" max="999">
+            <button type="button" class="qty-btn" onclick="adjustQuantity(1)">+</button>
+            <span class="qty-total" id="quantityTotal">$0.00</span>
+        </div>
+        <div class="quantity-buttons">
+            <button type="button" class="qty-cancel" onclick="closeQuantityModal()">Cancel</button>
+            <button type="button" class="qty-confirm" onclick="confirmQuantity()">Add</button>
+        </div>
+    </div>
+</div>
+
     <!-- Link JavaScript -->
-    <script src="/static/script.js?v=2024j"></script>
+   <script src="/static/script.js?v=2024n"></script>
 </body>
 </html>

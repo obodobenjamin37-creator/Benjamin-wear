@@ -5,9 +5,17 @@ import requests
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-in-production'
+app.config['WTF_CSRF_ENABLED'] = False
+app.secret_key = 'fab1ea746c5304056e6d42fc7705dfd5cded2377ee2c161a2157870a475df9c3'
+
+# Session security settings
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
 from datetime import timedelta
 app.permanent_session_lifetime = timedelta(days=30)
 
@@ -16,7 +24,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'us
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# User Model
+# ============================================
+# MODELS
+# ============================================
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -42,7 +52,9 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+# ============================================
 # ROUTES
+# ============================================
 @app.route('/')
 def home():
     if 'user' not in session:
@@ -72,12 +84,10 @@ def search():
     
     query = request.args.get('q', '')
     if query:
-        # Case-insensitive search
         products = Product.query.filter(Product.name.ilike(f'%{query}%')).all()
     else:
         products = []
     
-    # Currency conversion
     try:
         response = requests.get('https://open.er-api.com/v6/latest/USD')
         data = response.json()
@@ -91,6 +101,7 @@ def search():
         converted_products.append(product)
     
     return render_template('search_results.html', products=converted_products, query=query)
+
 
 @app.route('/logout')
 def logout_page():
@@ -112,6 +123,7 @@ def signup():
 def admin():
     return render_template('admin.html')
 
+
 @app.route('/product/<int:id>')
 def product_page(id):
     if 'user' not in session:
@@ -131,6 +143,7 @@ def product_page(id):
     product.price_ngn = round(product.price * exchange_rate, 2)
     
     return render_template('product.html', product=product)
+
 
 @app.route('/cart')
 def cart_page():
@@ -153,22 +166,7 @@ def cart_page():
                          cart=cart, 
                          total=round(total, 2), 
                          total_ngn=total_ngn)
-    
-    product = Product.query.get(id)
-    if not product:
-        return "Product not found", 404
-    
-    # Currency conversion
-    try:
-        response = requests.get('https://open.er-api.com/v6/latest/USD')
-        data = response.json()
-        exchange_rate = data['rates']['NGN']
-    except Exception as e:
-        exchange_rate = 1600
-    
-    product.price_ngn = round(product.price * exchange_rate, 2)
-    
-    return render_template('product.html', product=product)
+
 
 @app.route('/contact')
 def contact_page():
@@ -176,17 +174,20 @@ def contact_page():
         return redirect(url_for('login_page'))
     return render_template('contact.html')
 
+
 @app.route('/orders')
 def view_orders():
     if 'user' not in session:
         return redirect(url_for('login_page'))
     
-    # Get all orders from the database, newest first
     orders = Order.query.order_by(Order.date_created.desc()).all()
     
     return render_template('orders.html', orders=orders)
 
 
+# ============================================
+# PRODUCT API
+# ============================================
 @app.route('/api/products', methods=['POST'])
 def add_product():
     data = request.get_json()
@@ -217,10 +218,11 @@ def delete_product(id):
     return jsonify({'success': False, 'message': 'Product not found'}), 404
 
 
-# API ENDPOINTS
+# ============================================
+# CART API
+# ============================================
 @app.route('/api/add-to-cart', methods=['POST'])
 def add_to_cart():
-    """Add item to cart"""
     try:
         data = request.json
         product_name = data.get('product')
@@ -251,7 +253,6 @@ def add_to_cart():
 
 @app.route('/api/get-cart', methods=['GET'])
 def get_cart():
-    """Get current cart contents"""
     cart = session.get('cart', [])
     total = sum(item['price'] * item.get('quantity', 1) for item in cart)
     
@@ -274,36 +275,12 @@ def get_cart():
 
 @app.route('/api/clear-cart', methods=['POST'])
 def clear_cart():
-    """Clear the cart"""
     session['cart'] = []
     session.modified = True
     return jsonify({
         'success': True,
         'message': 'Cart cleared! 🗑️'
     })
-
-
-@app.route('/api/place-order', methods=['POST'])
-def place_order():
-    cart = session.get('cart', [])
-    if not cart:
-        return jsonify({'success': False, 'message': 'Your cart is empty!'}), 400
-        
-    total = sum(item['price'] for item in cart)
-    
-    new_order = Order(
-        customer_email=session.get('user', 'Guest'),
-        items=str(cart),
-        total=total
-    )
-    
-    db.session.add(new_order)
-    db.session.commit()
-    
-    session['cart'] = []
-    session.modified = True
-    
-    return jsonify({'success': True, 'message': 'Order placed successfully! We will contact you soon!'})
 
 
 @app.route('/api/remove-from-cart', methods=['POST'])
@@ -322,6 +299,32 @@ def remove_from_cart():
     return jsonify({'success': False, 'message': 'Item not found'}), 400
 
 
+@app.route('/api/place-order', methods=['POST'])
+def place_order():
+    cart = session.get('cart', [])
+    if not cart:
+        return jsonify({'success': False, 'message': 'Your cart is empty!'}), 400
+        
+    total = sum(item['price'] * item.get('quantity', 1) for item in cart)
+    
+    new_order = Order(
+        customer_email=session.get('user', 'Guest'),
+        items=str(cart),
+        total=total
+    )
+    
+    db.session.add(new_order)
+    db.session.commit()
+    
+    session['cart'] = []
+    session.modified = True
+    
+    return jsonify({'success': True, 'message': 'Order placed successfully! We will contact you soon!'})
+
+
+# ============================================
+# AUTH API
+# ============================================
 @app.route('/api/login', methods=['POST'])
 def api_login():
     data = request.get_json()
@@ -333,7 +336,7 @@ def api_login():
     if user is None or not user.check_password(password):
         return jsonify({'error': 'Invalid username or password'}), 401
 
-    session.permanent = True     
+    session.permanent = True
     session['user'] = username
     return jsonify({'success': True, 'message': 'Welcome back!', 'user': username})
 
@@ -367,17 +370,18 @@ def register():
 
 @app.route('/api/logout', methods=['POST'])
 def api_logout():
-    """Handle logout"""
     session.pop('user', None)
-    return jsonify({-- 
+    return jsonify({
         'success': True,
         'message': 'Logged out successfully! 👋'
     })
 
 
+# ============================================
+# CONTACT API
+# ============================================
 @app.route('/api/contact', methods=['POST'])
 def contact():
-    """Handle contact form submission"""
     try:
         data = request.json
         name = data.get('name')
@@ -414,7 +418,6 @@ def contact():
 
 @app.route('/api/forgot-password', methods=['POST'])
 def forgot_password():
-    """Handle forgot password"""
     try:
         data = request.json
         email = data.get('email')
@@ -436,12 +439,17 @@ def forgot_password():
         }), 400
 
 
+# ============================================
 # ERROR HANDLING
+# ============================================
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Page not found'}), 404
 
 
+# ============================================
+# RUN THE APP
+# ============================================
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
