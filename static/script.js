@@ -194,19 +194,35 @@ document.addEventListener('click', function (e) {
     if (modal && e.target === modal) closeQuantityModal();
 });
 
-// Allow typing in the quantity input — auto-correct invalid values
+// Allow typing in the quantity input — only correct on blur/confirm
 document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'quantityInput') {
+        // Only strip non-digit characters, allow empty string
+        let raw = e.target.value.replace(/[^0-9]/g, '');
+        // Enforce max of 999 as user types
+        if (raw.length > 3) raw = raw.slice(0, 3);
+        if (raw !== e.target.value) {
+            e.target.value = raw;
+        }
+        // Update total only if there's a valid number; otherwise show $0.00
+        let qty = parseInt(raw);
+        if (isNaN(qty)) qty = 0;
+        const total = (quantityModalData.price * qty).toFixed(2);
+        const totalEl = document.getElementById('quantityTotal');
+        if (totalEl) totalEl.textContent = '$' + total;
+    }
+});
+
+// When the user leaves the input, snap to a valid value
+document.addEventListener('blur', function (e) {
     if (e.target && e.target.id === 'quantityInput') {
         let qty = parseInt(e.target.value);
         if (isNaN(qty) || qty < 1) qty = 1;
         if (qty > 999) qty = 999;
-        // Only overwrite if the value is actually invalid (to avoid cursor jumping while typing)
-        if (String(qty) !== e.target.value) {
-            e.target.value = qty;
-        }
+        e.target.value = qty;
         updateQuantityTotal();
     }
-});
+}, true);
 
 function addToCartWithQuantity(productName, price, quantity) {
     const buttons = document.querySelectorAll('.btn-add');
@@ -380,7 +396,7 @@ function socialLink(platform) {
 }
 
 // ============================================
-// NOTIFICATION SYSTEM
+// NOTIFICATION SYSTEM (Top Center)
 // ============================================
 function showNotification(message, type = 'info') {
     const existing = document.querySelector('.notification');
@@ -401,7 +417,7 @@ function showNotification(message, type = 'info') {
     document.body.appendChild(notification);
 
     setTimeout(() => {
-        notification.style.animation = 'slideOutDown 0.5s ease';
+        notification.style.animation = 'slideOutUp 0.4s ease';
         setTimeout(() => { notification.remove(); }, 500);
     }, 3000);
 }
@@ -633,9 +649,9 @@ if (registerForm) {
         const data = await response.json();
 
         if (data.success) {
-            alert('Account created successfully! Please login.');
+            showNotification('Account created successfully! Please login. ✅', 'success');
         } else {
-            alert(data.error || 'Registration failed. Please try again.');
+            showNotification(data.error || 'Registration failed. Please try again.', 'error');
         }
     });
 }
@@ -645,7 +661,7 @@ function submitRegister() {
     const password = document.getElementById('register-password').value;
 
     if (!email || !password) {
-        alert('Please fill in both email and password!');
+        showNotification('Please fill in both email and password! ⚠️', 'warning');
         return;
     }
 
@@ -657,13 +673,13 @@ function submitRegister() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Account created successfully! Please login.');
+            showNotification('Account created successfully! Please login. ✅', 'success');
         } else {
-            alert(data.error || 'Registration failed. Please try again.');
+            showNotification(data.error || 'Registration failed. Please try again.', 'error');
         }
     })
     .catch(error => {
-        alert('There was a problem connecting to the server. Please try again.');
+        showNotification('There was a problem connecting to the server.', 'error');
     });
 }
 
@@ -672,7 +688,7 @@ function submitLogin() {
     const password = document.getElementById('login-password').value;
 
     if (!email || !password) {
-        alert('Please fill in both email and password!');
+        showNotification('Please fill in both email and password! ⚠️', 'warning');
         return;
     }
 
@@ -684,14 +700,14 @@ function submitLogin() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Welcome back, ' + data.user + '!');
-            window.location.href = '/';
+            showNotification('Welcome back, ' + data.user + '! ✅', 'success');
+            setTimeout(() => { window.location.href = '/'; }, 1200);
         } else {
-            alert(data.error || 'Login failed. Please try again.');
+            showNotification(data.error || 'Login failed. Please try again.', 'error');
         }
     })
     .catch(error => {
-        alert('There was a problem connecting to the server. Please try again.');
+        showNotification('There was a problem connecting to the server.', 'error');
     });
 }
 

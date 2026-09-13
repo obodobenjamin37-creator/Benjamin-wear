@@ -1056,6 +1056,28 @@ footer::before {
   }
 }
 
+@keyframes slideInDown {
+    from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutUp {
+    from {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    to {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+}
+
 /* ===== SWEET: SPINNER LOADER (for future use) ===== */
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -1080,23 +1102,26 @@ footer::before {
   70% { transform: scale(1); }
 }
 
-/* ===== NOTIFICATION ===== */
+
+ /* ===== NOTIFICATION (Top Center) ===== */
 .notification {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: #1a1a2e;
-  color: white;
-  padding: 1rem 2rem;
-  border-radius: 50px;
-  font-size: 1rem;
-  font-weight: 500;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-  z-index: 1000;
-  animation: slideInUp 0.5s ease;
-  border-left: 5px solid #e94560;
-  max-width: 400px;
-  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a2e;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    z-index: 10000;
+    animation: slideInDown 0.4s ease;
+    border-left: 5px solid #e94560;
+    max-width: 90%;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
