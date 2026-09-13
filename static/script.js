@@ -693,7 +693,6 @@ function submitLogin() {
     }
 
     fetch('/api/login', {
-        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email, password: password })
     })
@@ -727,14 +726,16 @@ function togglePassword(inputId, button) {
 // ============================================
 // ADMIN PANEL - ADD PRODUCT
 // ============================================
-function addProduct() {
+
+   function addProduct() {
     const name = document.getElementById('name').value;
     const price = document.getElementById('price').value;
     const image = document.getElementById('image').value;
     const category = document.getElementById('category').value;
+    const badge = document.getElementById('badge') ? document.getElementById('badge').value : '';
 
     if (!name || !price || !image) {
-        alert('Please fill in all fields!');
+        showNotification('Please fill in all fields! ⚠️', 'warning');
         return;
     }
 
@@ -745,23 +746,26 @@ function addProduct() {
             name: name,
             price: price,
             image: image,
-            category: category
+            category: category,
+            badge: badge
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
+            showNotification(data.message || 'Product added! ✅', 'success');
             document.getElementById('adminForm').reset();
+            if (typeof loadProductsForDelete === 'function') {
+                loadProductsForDelete();
+            }
         } else {
-            alert('Error adding product. Please try again.');
+            showNotification('Error adding product.', 'error');
         }
     })
     .catch(error => {
-        alert('There was a problem connecting to the server. Please try again.');
+        showNotification('Could not connect to the server.', 'error');
     });
 }
-
 // ============================================
 // CART MANAGEMENT
 // ============================================
@@ -820,9 +824,12 @@ function loadProductsForDelete() {
             productList.innerHTML = '';
 
             data.products.forEach(product => {
+                const badgeLabel = product.badge
+                    ? `<span style="background:${product.badge === 'SALE' ? '#e94560' : '#0056b3'};color:white;padding:2px 8px;border-radius:10px;font-size:0.7rem;margin-left:6px;">${product.badge}</span>`
+                    : '';
                 productList.innerHTML += `
                     <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                        <span>${product.name} - $${product.price}</span>
+                        <span>${product.name} - $${product.price} ${badgeLabel}</span>
                         <button onclick="deleteProduct(${product.id})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Delete</button>
                     </div>
                 `;

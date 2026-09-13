@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024m">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024t">
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 40px; }
         .admin-container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -41,6 +41,15 @@
                 <input type="text" id="category" placeholder="e.g., Clothing, Gadgets, Shoes" required>
             </div>
 
+                <div class="form-group">
+        <label for="badge">Badge (optional)</label>
+        <select id="badge">
+            <option value="">None</option>
+            <option value="NEW">NEW</option>
+            <option value="SALE">SALE</option>
+        </select>
+    </div>
+
             <button type="button" onclick="addProduct()">Add Product</button>
         </form>
 
@@ -48,6 +57,6 @@
         <div id="productList"></div>
     </div>
 
-    <script src="/static/script.js?v=2024m"></script>
+    <script src="/static/script.js?v=2024t"></script>
 </body>
 </html>

@@ -33,6 +33,7 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     image = db.Column(db.String(500), nullable=False)
     category = db.Column(db.String(50), nullable=False, default='General')
+    badge = db.Column(db.String(20), nullable=True, default=None)  # 'NEW', 'SALE', or None
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -191,23 +192,25 @@ def view_orders():
 @app.route('/api/products', methods=['POST'])
 def add_product():
     data = request.get_json()
+    badge = data.get('badge', '').strip().upper() or None
+    if badge not in ('NEW', 'SALE'):
+        badge = None
     new_product = Product(
         name=data['name'],
         price=data['price'],
         image=data['image'],
-        category=data['category']
+        category=data['category'],
+        badge=badge
     )
     db.session.add(new_product)
     db.session.commit()
     return jsonify({'success': True, 'message': 'Product added successfully!'})
 
-
 @app.route('/api/get-products', methods=['GET'])
 def get_products():
     products = Product.query.all()
-    return jsonify({'products': [{'id': p.id, 'name': p.name, 'price': p.price, 'category': p.category} for p in products]})
-
-
+    return jsonify({'products': [{'id': p.id, 'name': p.name, 'price': p.price, 'category': p.category, 'badge': p.badge} for p in products]})
+    
 @app.route('/api/products/delete/<int:id>', methods=['DELETE'])
 def delete_product(id):
     product = Product.query.get(id)

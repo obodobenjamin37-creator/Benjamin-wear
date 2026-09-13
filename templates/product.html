@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.name }} - Benjamin's Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024n">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024t">
 </head>
 <body>
     <!-- Navigation -->
@@ -34,6 +34,9 @@
             </div>
             <div class="product-detail-info">
                 <h1>{{ product.name }}</h1>
+                {% if product.badge %}
+    <span class="product-badge {{ product.badge|lower }}">{{ product.badge }}</span>
+{% endif %}
                 <p class="product-detail-category">Category: {{ product.category }}</p>
                 <p class="product-detail-price">${{ product.price }} <span style="color: green;">/ ₦{{ product.price_ngn }}</span></p>
                 <p class="product-detail-description">
@@ -81,6 +84,6 @@
 </div>
 
     <!-- Link JavaScript -->
-   <script src="/static/script.js?v=2024n"></script>
+   <script src="/static/script.js?v=2024t"></script>
 </body>
 </html>

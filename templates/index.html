@@ -5,7 +5,7 @@
   <meta name="google-site-verification" content="LGLpLzXosDrYfN_dCowcUuHvl0u6e-fnGPtEGLiDaJQ" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Benjamin's Store</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024ns">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024nt">
 </head>
 <body>
   <!-- Navigation -->
@@ -43,6 +43,9 @@
     <div class="product-grid">
      {% for product in products if product.category == 'Clothing' %}
         <div class="product-card">
+          {% if product.badge %}
+    <span class="product-badge {{ product.badge|lower }}">{{ product.badge }}</span>
+{% endif %}
           <a href="/product/{{ product.id }}">
             <img src="{{ product.image }}" style="cursor: pointer;" alt="{{ product.name }}">
           </a>
@@ -58,6 +61,9 @@
     <div class="product-grid">
 {% for product in products if product.category == 'Gadgets' %}
         <div class="product-card">
+          {% if product.badge %}
+    <span class="product-badge {{ product.badge|lower }}">{{ product.badge }}</span>
+{% endif %}
           <a href="/product/{{ product.id }}">
             <img src="{{ product.image }}" style="cursor: pointer;" alt="{{ product.name }}">
           </a>
@@ -73,6 +79,9 @@
     <div class="product-grid">
    {% for product in products if product.category == 'Shoes' %}
         <div class="product-card">
+          {% if product.badge %}
+    <span class="product-badge {{ product.badge|lower }}">{{ product.badge }}</span>
+{% endif %}
           <a href="/product/{{ product.id }}">
             <img src="{{ product.image }}" style="cursor: pointer;" alt="{{ product.name }}">
           </a>
@@ -87,6 +96,9 @@
     <div class="product-grid">
        {% for product in products if product.category == 'Accessories' %}
         <div class="product-card">
+          {% if product.badge %}
+    <span class="product-badge {{ product.badge|lower }}">{{ product.badge }}</span>
+{% endif %}
           <a href="/product/{{ product.id }}">
             <img src="{{ product.image }}" style="cursor: pointer;" alt="{{ product.name }}">
           </a>
@@ -167,6 +179,6 @@
   </div>
 
   <!-- Link JavaScript -->
-  <script src="/static/script.js?v=2024n"></script>
+  <script src="/static/script.js?v=2024t"></script>
 </body>
 </html>
