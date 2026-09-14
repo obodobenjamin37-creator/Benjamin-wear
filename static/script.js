@@ -170,7 +170,6 @@ function confirmQuantity() {
     }, 180);
 }
 
-
 function closeQuantityModal() {
     const modal = document.getElementById('quantityModal');
     if (!modal) return;
@@ -180,7 +179,6 @@ function closeQuantityModal() {
         quantityModalData = { name: '', price: 0 };
     }, 180);
 }
-
 
 document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
@@ -197,14 +195,11 @@ document.addEventListener('click', function (e) {
 // Allow typing in the quantity input — only correct on blur/confirm
 document.addEventListener('input', function (e) {
     if (e.target && e.target.id === 'quantityInput') {
-        // Only strip non-digit characters, allow empty string
         let raw = e.target.value.replace(/[^0-9]/g, '');
-        // Enforce max of 999 as user types
         if (raw.length > 3) raw = raw.slice(0, 3);
         if (raw !== e.target.value) {
             e.target.value = raw;
         }
-        // Update total only if there's a valid number; otherwise show $0.00
         let qty = parseInt(raw);
         if (isNaN(qty)) qty = 0;
         const total = (quantityModalData.price * qty).toFixed(2);
@@ -251,10 +246,12 @@ function addToCartWithQuantity(productName, price, quantity) {
             showNotification(data.message);
 
             const cartIcon = document.getElementById('cartIcon');
-            cartIcon.style.transform = 'scale(1.3)';
-            setTimeout(() => {
-                cartIcon.style.transform = 'scale(1)';
-            }, 300);
+            if (cartIcon) {
+                cartIcon.classList.remove('bounce');
+                void cartIcon.offsetWidth;
+                cartIcon.classList.add('bounce');
+                setTimeout(() => cartIcon.classList.remove('bounce'), 700);
+            }
         } else {
             showNotification(data.message || 'Error adding to cart! ❌');
         }
@@ -464,7 +461,7 @@ function showNotification(message, type = 'info') {
         cartIcon.classList.add('dragging');
     }
 
-      function moveDrag(clientX, clientY) {
+    function moveDrag(clientX, clientY) {
         if (!isDragging) return;
         const dx = clientX - startX;
         const dy = clientY - startY;
@@ -473,10 +470,7 @@ function showNotification(message, type = 'info') {
             hasMoved = true;
         }
 
-        // Safe margin so the icon never touches the very edge
         const margin = 8;
-
-        // Use documentElement (excludes scrollbar) for accurate bounds
         const viewportWidth = document.documentElement.clientWidth;
         const viewportHeight = document.documentElement.clientHeight;
 
@@ -486,7 +480,6 @@ function showNotification(message, type = 'info') {
         let newLeft = initialLeft + dx;
         let newTop = initialTop + dy;
 
-        // Clamp to boundaries with margin
         newLeft = Math.max(margin, Math.min(viewportWidth - iconWidth - margin, newLeft));
         newTop = Math.max(margin, Math.min(viewportHeight - iconHeight - margin, newTop));
 
@@ -515,7 +508,6 @@ function showNotification(message, type = 'info') {
         e.preventDefault();
     });
 
-        // If the mouse leaves the window during a drag, end it cleanly
     document.addEventListener('mouseleave', () => {
         mouseDownPos = null;
         endDrag();
@@ -563,7 +555,6 @@ function showNotification(message, type = 'info') {
         endDrag();
     });
 
-        // If touch is cancelled (e.g., user swipes off-screen), end drag
     document.addEventListener('touchcancel', () => {
         touchStartPos = null;
         endDrag();
@@ -693,6 +684,7 @@ function submitLogin() {
     }
 
     fetch('/api/login', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email, password: password })
     })
@@ -726,8 +718,7 @@ function togglePassword(inputId, button) {
 // ============================================
 // ADMIN PANEL - ADD PRODUCT
 // ============================================
-
-   function addProduct() {
+function addProduct() {
     const name = document.getElementById('name').value;
     const price = document.getElementById('price').value;
     const image = document.getElementById('image').value;
@@ -766,6 +757,7 @@ function togglePassword(inputId, button) {
         showNotification('Could not connect to the server.', 'error');
     });
 }
+
 // ============================================
 // CART MANAGEMENT
 // ============================================
@@ -783,7 +775,6 @@ function removeFromCart(index) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Reload the page to refresh the cart display
             window.location.reload();
         } else {
             alert('Could not remove item.');
@@ -805,7 +796,6 @@ function clearCart() {
         const modal = document.getElementById('cartModal');
         if (modal) modal.style.display = 'none';
         showNotification(data.message || 'Cart cleared! 🗑️');
-        // Reload cart page if we're on it
         if (window.location.pathname === '/cart') {
             window.location.reload();
         }
@@ -891,7 +881,6 @@ function placeOrder() {
             if (countEl) countEl.textContent = '0';
             const modal = document.getElementById('cartModal');
             if (modal) modal.style.display = 'none';
-            // Redirect home after placing order
             window.location.href = '/';
         } else {
             alert(data.error || 'Could not place order.');
