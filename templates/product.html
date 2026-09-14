@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.name }} - Benjamin's Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024v">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024x">
 </head>
 <body>
     <!-- Navigation -->
@@ -81,17 +81,14 @@
             <button type="button" class="qty-confirm" onclick="confirmQuantity()">Add</button>
         </div>
     </div>
-</div> 
-
-<!-- footer -->
-<footer>
+</div> <footer>
     <div class="footer-container">
         <div class="footer-column">
             <h4>Benjamin's Store</h4>
             <p>Premium clothing for the modern individual. Fresh arrivals daily, fast shipping, and hassle-free returns.</p>
         </div>
         <div class="footer-column">
-            <h4>Shop</h4>
+            <h4 onclick="toggleFooterSection(this)">Shop ›</h4>
             <ul>
                 <li><a href="/#products">All Products</a></li>
                 <li><a href="/#products">Clothing</a></li>
@@ -101,7 +98,7 @@
             </ul>
         </div>
         <div class="footer-column">
-            <h4>Company</h4>
+            <h4 onclick="toggleFooterSection(this)">Company ›</h4>
             <ul>
                 <li><a href="/contact">Contact Us</a></li>
                 <li><a href="/signup">Create Account</a></li>
@@ -109,7 +106,7 @@
             </ul>
         </div>
         <div class="footer-column">
-            <h4>Follow Us</h4>
+            <h4 onclick="toggleFooterSection(this)">Follow Us ›</h4>
             <p>Stay updated with our latest arrivals.</p>
             <div class="footer-socials">
                 <a href="#" onclick="socialLink('Instagram')">Instagram</a>
@@ -122,8 +119,7 @@
         &copy; 2026 Benjamin's Street Store. All rights reserved. Made with <span>&hearts;</span> in Nigeria.
     </div>
 </footer>
-
     <!-- Link JavaScript -->
-   <script src="/static/script.js?v=2024v"></script>
+   <script src="/static/script.js?v=2024x"></script>
 </body>
 </html>

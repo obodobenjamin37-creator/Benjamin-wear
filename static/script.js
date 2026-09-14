@@ -904,3 +904,28 @@ window.addEventListener('load', function () {
         });
     }
 });
+
+// ============================================
+// FOOTER ACCORDION TOGGLE (Mobile Only)
+// ============================================
+function toggleFooterSection(header) {
+    // Only run on mobile screens
+    if (window.innerWidth > 768) return;
+
+    const column = header.parentElement;
+
+    // Prevent toggling the first column (Benjamin's Store tagline)
+    if (column === document.querySelector('.footer-column:first-child')) return;
+
+    const isOpen = column.classList.contains('open');
+
+    // Close all other columns (accordion behavior)
+    document.querySelectorAll('.footer-column').forEach(col => {
+        col.classList.remove('open');
+    });
+
+    // Toggle current column
+    if (!isOpen) {
+        column.classList.add('open');
+    }
+}
