@@ -4,20 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.name }} - Benjamin's Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024x">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024z">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="logo"><i>Benjamin's Store</i></div>
-        <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/">Shop</a></li>
-            <li><a href="/">Arrivals</a></li>
-            <li><a href="/">Sales</a></li>
-            <li><a href="/logout">Logout</a></li>
-            <li><a href="/contact">Contact</a></li>
-        </ul>
+       <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/">Shop</a></li>
+    <li><a href="/">Arrivals</a></li>
+    <li><a href="/">Sales</a></li>
+    {% if current_user_is_admin %}
+        <li><a href="/admin" style="color: #e94560; font-weight: 700;">Admin</a></li>
+        <li><a href="/orders" style="color: #e94560; font-weight: 700;">Orders</a></li>
+    {% endif %}
+    <li><a href="/logout">Logout</a></li>
+    <li><a href="/contact">Contact</a></li>
+</ul>
         <div class="search-container">
             <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 8px; border-radius: 5px; border: none; width: 200px;">
         </div>
@@ -120,6 +124,6 @@
     </div>
 </footer>
     <!-- Link JavaScript -->
-   <script src="/static/script.js?v=2024x"></script>
+   <script src="/static/script.js?v=2024z"></script>
 </body>
 </html>

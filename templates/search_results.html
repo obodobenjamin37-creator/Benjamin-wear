@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results - Benjamin's Store</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024x">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024z">
 </head>
 <body>
     <nav class="navbar">
         <div class="logo"><i>Benjamin's Store</i></div>
-        <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/">Shop</a></li>
-            <li><a href="/">New Arrivals</a></li>
-            <li><a href="/">Sale</a></li>
-            <li><a href="/logout">Logout</a></li>
-        </ul>
+       <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/">Shop</a></li>
+    <li><a href="/">New Arrivals</a></li>
+    <li><a href="/">Sale</a></li>
+    {% if current_user_is_admin %}
+        <li><a href="/admin" style="color: #e94560; font-weight: 700;">Admin</a></li>
+        <li><a href="/orders" style="color: #e94560; font-weight: 700;">Orders</a></li>
+    {% endif %}
+    <li><a href="/logout">Logout</a></li>
+</ul>
            <div class="search-container">
       <input type="text" id="searchBar" placeholder="Search products..." onkeypress="if(event.key === 'Enter') searchProducts()" style="padding: 5px; border-radius: 5px; border: none; width: 150px;">
     </div>
@@ -100,6 +104,6 @@
         &copy; 2026 Benjamin's Street Store. All rights reserved. Made with <span>&hearts;</span> in Nigeria.
     </div>
 </footer>
-<script src="/static/script.js?v=2024x"></script>
+<script src="/static/script.js?v=2024z"></script>
 </body>
 </html>

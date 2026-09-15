@@ -867,23 +867,35 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // PLACE ORDER
 // ============================================
 function placeOrder() {
-    fetch('/api/place-order', {
+    // Show loading state on the button
+    const btn = event && event.target;
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Redirecting to payment...';
+    }
+
+    fetch('/api/initialize-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            alert(data.message);
-            cartCount = 0;
-            cartItems = [];
-            const countEl = document.getElementById('cartCount');
-            if (countEl) countEl.textContent = '0';
-            const modal = document.getElementById('cartModal');
-            if (modal) modal.style.display = 'none';
-            window.location.href = '/';
+        if (data.success && data.authorization_url) {
+            // Redirect user to Paystack checkout page
+            window.location.href = data.authorization_url;
         } else {
-            alert(data.error || 'Could not place order.');
+            alert(data.message || 'Could not start payment. Please try again.');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Place Order';
+            }
+        }
+    })
+    .catch(error => {
+        alert('Could not connect to the payment server. Please try again.');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Place Order';
         }
     });
 }

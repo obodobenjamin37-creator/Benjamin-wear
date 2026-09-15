@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - Benjamin's Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024z">
+    <style>
+        .thank-you-section {
+            padding: 5rem 5%;
+            max-width: 700px;
+            margin: 0 auto;
+            background: #e7d0d0;
+            min-height: 80vh;
+            text-align: center;
+        }
+        .thank-you-card {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .thank-you-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: pop 0.6s ease;
+        }
+        @keyframes pop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .thank-you-card h1 {
+            color: #1a1a2e;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .thank-you-card p {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        .order-reference {
+            background: #f5f5f5;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            color: #333;
+            margin: 1.5rem 0;
+            word-break: break-all;
+        }
+        .thank-you-card .btn-primary {
+            display: inline-block;
+            background: #0056b3;
+            color: white;
+            padding: 0.9rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .thank-you-card .btn-primary:hover {
+            background: #003d80;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><i>Benjamin's Store</i></div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/#products">Shop</a></li>
+            <li><a href="/logout">Logout</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="thank-you-section">
+        <div class="thank-you-card">
+            <div class="thank-you-icon">🎉</div>
+            <h1>Thank You for Your Order!</h1>
+            <p>Your payment was successful and your order has been placed.</p>
+            <p>We'll process it shortly and get in touch with you soon.</p>
+
+            {% if reference %}
+            <div class="order-reference">
+                <strong>Payment Reference:</strong><br>
+                {{ reference }}
+            </div>
+            {% endif %}
+
+            {% if order %}
+            <p><strong>Total Paid:</strong> ${{ order.total }}</p>
+            {% endif %}
+
+            <a href="/" class="btn-primary">Continue Shopping</a>
+        </div>
+    </section>
+
+    <script src="/static/script.js?v=2024z"></script>
+</body>
+</html>

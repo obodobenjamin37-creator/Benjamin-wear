@@ -6,6 +6,10 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf.csrf import CSRFProtect
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
 
 app = Flask(__name__)
 app.config['WTF_CSRF_ENABLED'] = False
@@ -18,6 +22,11 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 from datetime import timedelta
 app.permanent_session_lifetime = timedelta(days=30)
+
+# Paystack configuration
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
+PAYSTACK_CALLBACK_URL = os.getenv('PAYSTACK_CALLBACK_URL', 'http://127.0.0.1:5000/payment/callback')
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
@@ -33,7 +42,7 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     image = db.Column(db.String(500), nullable=False)
     category = db.Column(db.String(50), nullable=False, default='General')
-    badge = db.Column(db.String(20), nullable=True, default=None)  # 'NEW', 'SALE', or None
+    badge = db.Column(db.String(20), nullable=True, default=None)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,11 +50,13 @@ class Order(db.Model):
     items = db.Column(db.Text)
     total = db.Column(db.Float)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
-
+    payment_reference = db.Column(db.String(100), nullable=True)
+    status = db.Column(db.String(20), default='pending')  # 'pending' or 'paid'
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)  # Only admins can access /admin and /orders
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -54,27 +65,70 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
 # ============================================
+# ADMIN DECORATOR
+# ============================================
+from functools import wraps
+
+def admin_required(f):
+    """Decorator that ensures only admin users can access a route."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            return redirect(url_for('login_page'))
+        user = User.query.filter_by(username=session['user']).first()
+        if not user or not user.is_admin:
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
+    
+    # ============================================
+# TEMPLATE CONTEXT (makes is_admin available to all templates)
+# ============================================
+@app.context_processor
+def inject_user_flags():
+    """Make current_user_is_admin available to all templates."""
+    is_admin = False
+    if 'user' in session:
+        user = User.query.filter_by(username=session['user']).first()
+        if user and user.is_admin:
+            is_admin = True
+    return {'current_user_is_admin': is_admin}
+
+# ============================================
+# HELPER FUNCTIONS
+# ============================================
+def get_exchange_rate():
+    """Fetch current USD → NGN exchange rate."""
+    try:
+        response = requests.get('https://open.er-api.com/v6/latest/USD', timeout=10)
+        data = response.json()
+        return data['rates']['NGN']
+    except Exception:
+        return 1600  # fallback
+
+def verify_paystack_payment(reference):
+    """Verify a Paystack transaction by reference."""
+    url = f'https://api.paystack.co/transaction/verify/{reference}'
+    headers = {'Authorization': f'Bearer {PAYSTACK_SECRET_KEY}'}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        return response.json()
+    except Exception as e:
+        return {'status': False, 'message': str(e)}
+
+# ============================================
 # ROUTES
 # ============================================
 @app.route('/')
 def home():
     if 'user' not in session:
         return redirect(url_for('login_page'))
-    
     products = Product.query.all()
-    
-    try:
-        response = requests.get('https://open.er-api.com/v6/latest/USD')
-        data = response.json()
-        exchange_rate = data['rates']['NGN']
-    except Exception as e:
-        exchange_rate = 1600
-    
+    exchange_rate = get_exchange_rate()
     converted_products = []
     for product in products:
         product.price_ngn = round(product.price * exchange_rate, 2)
         converted_products.append(product)
-    
     return render_template('index.html', products=converted_products, exchange_rate=exchange_rate)
 
 
@@ -82,25 +136,16 @@ def home():
 def search():
     if 'user' not in session:
         return redirect(url_for('login_page'))
-    
     query = request.args.get('q', '')
     if query:
         products = Product.query.filter(Product.name.ilike(f'%{query}%')).all()
     else:
         products = []
-    
-    try:
-        response = requests.get('https://open.er-api.com/v6/latest/USD')
-        data = response.json()
-        exchange_rate = data['rates']['NGN']
-    except Exception as e:
-        exchange_rate = 1600
-    
+    exchange_rate = get_exchange_rate()
     converted_products = []
     for product in products:
         product.price_ngn = round(product.price * exchange_rate, 2)
         converted_products.append(product)
-    
     return render_template('search_results.html', products=converted_products, query=query)
 
 
@@ -121,6 +166,7 @@ def signup():
 
 
 @app.route('/admin')
+@admin_required
 def admin():
     return render_template('admin.html')
 
@@ -129,20 +175,11 @@ def admin():
 def product_page(id):
     if 'user' not in session:
         return redirect(url_for('login_page'))
-    
     product = Product.query.get(id)
     if not product:
         return "Product not found", 404
-    
-    try:
-        response = requests.get('https://open.er-api.com/v6/latest/USD')
-        data = response.json()
-        exchange_rate = data['rates']['NGN']
-    except Exception as e:
-        exchange_rate = 1600
-    
+    exchange_rate = get_exchange_rate()
     product.price_ngn = round(product.price * exchange_rate, 2)
-    
     return render_template('product.html', product=product)
 
 
@@ -150,23 +187,11 @@ def product_page(id):
 def cart_page():
     if 'user' not in session:
         return redirect(url_for('login_page'))
-    
     cart = session.get('cart', [])
     total = sum(item['price'] * item.get('quantity', 1) for item in cart)
-    
-    try:
-        response = requests.get('https://open.er-api.com/v6/latest/USD')
-        data = response.json()
-        exchange_rate = data['rates']['NGN']
-    except Exception as e:
-        exchange_rate = 1600
-    
+    exchange_rate = get_exchange_rate()
     total_ngn = round(total * exchange_rate, 2)
-    
-    return render_template('cart.html', 
-                         cart=cart, 
-                         total=round(total, 2), 
-                         total_ngn=total_ngn)
+    return render_template('cart.html', cart=cart, total=round(total, 2), total_ngn=total_ngn)
 
 
 @app.route('/contact')
@@ -175,21 +200,29 @@ def contact_page():
         return redirect(url_for('login_page'))
     return render_template('contact.html')
 
-
 @app.route('/orders')
+@admin_required
 def view_orders():
+    orders = Order.query.order_by(Order.date_created.desc()).all()
+    return render_template('orders.html', orders=orders)
+
+@app.route('/thank-you')
+def thank_you():
+    """Thank-you page shown after successful payment."""
     if 'user' not in session:
         return redirect(url_for('login_page'))
-    
-    orders = Order.query.order_by(Order.date_created.desc()).all()
-    
-    return render_template('orders.html', orders=orders)
+    ref = request.args.get('reference', '')
+    order = None
+    if ref:
+        order = Order.query.filter_by(payment_reference=ref).first()
+    return render_template('thank-you.html', order=order, reference=ref)
 
 
 # ============================================
 # PRODUCT API
 # ============================================
 @app.route('/api/products', methods=['POST'])
+@admin_required
 def add_product():
     data = request.get_json()
     badge = data.get('badge', '').strip().upper() or None
@@ -206,12 +239,15 @@ def add_product():
     db.session.commit()
     return jsonify({'success': True, 'message': 'Product added successfully!'})
 
+
 @app.route('/api/get-products', methods=['GET'])
 def get_products():
     products = Product.query.all()
     return jsonify({'products': [{'id': p.id, 'name': p.name, 'price': p.price, 'category': p.category, 'badge': p.badge} for p in products]})
-    
+
+
 @app.route('/api/products/delete/<int:id>', methods=['DELETE'])
+@admin_required
 def delete_product(id):
     product = Product.query.get(id)
     if product:
@@ -231,43 +267,29 @@ def add_to_cart():
         product_name = data.get('product')
         price = data.get('price')
         quantity = data.get('quantity', 1)
-         
         if 'cart' not in session:
             session['cart'] = []
-        
         session['cart'].append({
             'name': product_name,
             'price': price,
             'quantity': quantity
         })
         session.modified = True
-        
         return jsonify({
             'success': True,
             'message': f'{quantity} x {product_name} added to cart! 🛒',
             'cart_count': len(session['cart'])
         })
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': 'Error adding to cart'
-        }), 400
+        return jsonify({'success': False, 'message': 'Error adding to cart'}), 400
 
 
 @app.route('/api/get-cart', methods=['GET'])
 def get_cart():
     cart = session.get('cart', [])
     total = sum(item['price'] * item.get('quantity', 1) for item in cart)
-    
-    try:
-        response = requests.get('https://open.er-api.com/v6/latest/USD')
-        data = response.json()
-        exchange_rate = data['rates']['NGN']
-    except Exception as e:
-        exchange_rate = 1600
-    
+    exchange_rate = get_exchange_rate()
     total_ngn = round(total * exchange_rate, 2)
-    
     return jsonify({
         'items': cart,
         'count': len(cart),
@@ -280,17 +302,13 @@ def get_cart():
 def clear_cart():
     session['cart'] = []
     session.modified = True
-    return jsonify({
-        'success': True,
-        'message': 'Cart cleared! 🗑️'
-    })
+    return jsonify({'success': True, 'message': 'Cart cleared! 🗑️'})
 
 
 @app.route('/api/remove-from-cart', methods=['POST'])
 def remove_from_cart():
     data = request.get_json()
     index = data.get('index')
-    
     if 'cart' in session:
         cart = session['cart']
         if 0 <= index < len(cart):
@@ -298,31 +316,111 @@ def remove_from_cart():
             session['cart'] = cart
             session.modified = True
             return jsonify({'success': True, 'message': 'Item removed!'})
-            
     return jsonify({'success': False, 'message': 'Item not found'}), 400
 
 
-@app.route('/api/place-order', methods=['POST'])
-def place_order():
+# ============================================
+# PAYSTACK PAYMENT API
+# ============================================
+@app.route('/api/initialize-payment', methods=['POST'])
+def initialize_payment():
+    """Initialize a Paystack transaction and return the checkout URL."""
+    if 'user' not in session:
+        return jsonify({'success': False, 'message': 'Please log in first.'}), 401
+
     cart = session.get('cart', [])
     if not cart:
         return jsonify({'success': False, 'message': 'Your cart is empty!'}), 400
-        
-    total = sum(item['price'] * item.get('quantity', 1) for item in cart)
-    
-    new_order = Order(
-        customer_email=session.get('user', 'Guest'),
-        items=str(cart),
-        total=total
-    )
-    
-    db.session.add(new_order)
-    db.session.commit()
-    
-    session['cart'] = []
-    session.modified = True
-    
-    return jsonify({'success': True, 'message': 'Order placed successfully! We will contact you soon!'})
+
+    # Calculate totals
+    total_usd = sum(item['price'] * item.get('quantity', 1) for item in cart)
+    exchange_rate = get_exchange_rate()
+    total_ngn = round(total_usd * exchange_rate, 2)
+    amount_kobo = int(total_ngn * 100)  # Paystack expects kobo (1 NGN = 100 kobo)
+
+    customer_email = session.get('user')
+    callback_url = PAYSTACK_CALLBACK_URL
+
+    # Call Paystack initialize endpoint
+    url = 'https://api.paystack.co/transaction/initialize'
+    headers = {
+        'Authorization': f'Bearer {PAYSTACK_SECRET_KEY}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        'email': customer_email,
+        'amount': amount_kobo,
+        'currency': 'NGN',
+        'callback_url': callback_url,
+        'metadata': {
+            'cart': cart,
+            'total_usd': total_usd,
+            'total_ngn': total_ngn
+        }
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
+        data = response.json()
+
+        if data.get('status'):
+            # Save pending order to DB
+            new_order = Order(
+                customer_email=customer_email,
+                items=str(cart),
+                total=total_usd,
+                payment_reference=data['data']['reference'],
+                status='pending'
+            )
+            db.session.add(new_order)
+            db.session.commit()
+
+            return jsonify({
+                'success': True,
+                'authorization_url': data['data']['authorization_url'],
+                'reference': data['data']['reference']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': data.get('message', 'Paystack initialization failed.')
+            }), 400
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Payment error: {str(e)}'}), 500
+
+
+@app.route('/payment/callback')
+def payment_callback():
+    """Paystack redirects here after payment."""
+    reference = request.args.get('reference')
+    if not reference:
+        return redirect(url_for('cart_page'))
+
+    # Verify with Paystack
+    result = verify_paystack_payment(reference)
+
+    if result.get('status') and result.get('data', {}).get('status') == 'success':
+        # Find and update order
+        order = Order.query.filter_by(payment_reference=reference).first()
+        if order and order.status != 'paid':
+            order.status = 'paid'
+            db.session.commit()
+
+        # Clear the cart
+        session['cart'] = []
+        session.modified = True
+
+        return redirect(url_for('thank_you', reference=reference))
+    else:
+        # Payment failed — redirect to cart with a message
+        return redirect(url_for('cart_page'))
+
+
+@app.route('/payment/verify/<reference>')
+def payment_verify(reference):
+    """Manual verification endpoint (used for debugging)."""
+    result = verify_paystack_payment(reference)
+    return jsonify(result)
 
 
 # ============================================
@@ -333,12 +431,9 @@ def api_login():
     data = request.get_json()
     username = data.get('email')
     password = data.get('password')
-    
     user = User.query.filter_by(username=username).first()
-    
     if user is None or not user.check_password(password):
         return jsonify({'error': 'Invalid username or password'}), 401
-
     session.permanent = True
     session['user'] = username
     return jsonify({'success': True, 'message': 'Welcome back!', 'user': username})
@@ -356,28 +451,21 @@ def register():
     data = request.get_json()
     username = data.get('email')
     password = data.get('password')
-    
     if not username or not password:
         return jsonify({'error': 'Missing email or password'}), 400
-        
     if User.query.filter_by(username=username).first():
         return jsonify({'error': 'User already exists'}), 400
-        
     new_user = User(username=username)
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
-    
     return jsonify({'success': True, 'message': 'Account created securely!'}), 201
 
 
 @app.route('/api/logout', methods=['POST'])
 def api_logout():
     session.pop('user', None)
-    return jsonify({
-        'success': True,
-        'message': 'Logged out successfully! 👋'
-    })
+    return jsonify({'success': True, 'message': 'Logged out successfully! 👋'})
 
 
 # ============================================
@@ -391,13 +479,8 @@ def contact():
         email = data.get('email')
         subject = data.get('subject')
         message = data.get('message')
-        
         if not all([name, email, subject, message]):
-            return jsonify({
-                'success': False,
-                'message': 'Please fill in all fields! ⚠️'
-            }), 400
-        
+            return jsonify({'success': False, 'message': 'Please fill in all fields! ⚠️'}), 400
         print(f"""
         ========================================
         New Contact Form Submission:
@@ -407,16 +490,9 @@ def contact():
         Message: {message}
         ========================================
         """)
-        
-        return jsonify({
-            'success': True,
-            'message': f'Thank you {name}! We\'ll get back to you soon! 📧'
-        })
+        return jsonify({'success': True, 'message': f'Thank you {name}! We\'ll get back to you soon! 📧'})
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': 'Error sending message'
-        }), 400
+        return jsonify({'success': False, 'message': 'Error sending message'}), 400
 
 
 @app.route('/api/forgot-password', methods=['POST'])
@@ -424,22 +500,11 @@ def forgot_password():
     try:
         data = request.json
         email = data.get('email')
-        
         if not email:
-            return jsonify({
-                'success': False,
-                'message': 'Please enter your email! ⚠️'
-            }), 400
-        
-        return jsonify({
-            'success': True,
-            'message': 'Password reset link sent to your email! 📧'
-        })
+            return jsonify({'success': False, 'message': 'Please enter your email! ⚠️'}), 400
+        return jsonify({'success': True, 'message': 'Password reset link sent to your email! 📧'})
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': 'Error processing request'
-        }), 400
+        return jsonify({'success': False, 'message': 'Error processing request'}), 400
 
 
 # ============================================
