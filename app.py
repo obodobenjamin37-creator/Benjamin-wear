@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import json
 import os
+import csv
+from io import StringIO
 import requests
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
@@ -28,8 +30,20 @@ PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
 PAYSTACK_CALLBACK_URL = os.getenv('PAYSTACK_CALLBACK_URL', 'http://127.0.0.1:5000/payment/callback')
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
+# Database configuration
+# On Render: uses DATABASE_URL (PostgreSQL from Neon)
+# Locally: falls back to SQLite (users.db)
+database_url = os.getenv('DATABASE_URL')
+
+if database_url:
+    # Some providers give 'postgres://' but SQLAlchemy needs 'postgresql://'
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'users.db')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -239,6 +253,76 @@ def add_product():
     db.session.commit()
     return jsonify({'success': True, 'message': 'Product added successfully!'})
 
+@app.route('/api/import-products', methods=['POST'])
+@admin_required
+def import_products():
+    """Bulk import products from a CSV file."""
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file uploaded.'}), 400
+
+    file = request.files['file']
+    if not file.filename.endswith('.csv'):
+        return jsonify({'success': False, 'message': 'Only CSV files are supported.'}), 400
+
+    try:
+        content = file.read().decode('utf-8')
+        reader = csv.DictReader(StringIO(content))
+
+        required_fields = ['name', 'price', 'image', 'category']
+        imported = 0
+        failed = []
+
+        for row_num, row in enumerate(reader, start=2):
+            # Strip whitespace from all fields
+            row = {k.strip(): (v or '').strip() for k, v in row.items()}
+
+            # Validate required fields
+            missing = [f for f in required_fields if not row.get(f, '')]
+            if missing:
+                failed.append(f"Row {row_num}: Missing {', '.join(missing)}")
+                continue
+
+            # Validate price
+            try:
+                price = float(row['price'])
+                if price < 0:
+                    raise ValueError
+            except (ValueError, KeyError):
+                failed.append(f"Row {row_num}: Invalid price '{row.get('price', '')}'")
+                continue
+
+            # Validate badge
+            badge = row.get('badge', '').upper() or None
+            if badge not in ('NEW', 'SALE'):
+                badge = None
+
+            # Create product
+            product = Product(
+                name=row['name'],
+                price=price,
+                image=row['image'],
+                category=row['category'] or 'General',
+                badge=badge
+            )
+            db.session.add(product)
+            imported += 1
+
+        db.session.commit()
+
+        message = f'✅ {imported} products imported successfully!'
+        if failed:
+            message += f' ⚠️ {len(failed)} rows failed.'
+
+        return jsonify({
+            'success': True,
+            'message': message,
+            'imported': imported,
+            'errors': failed
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 500
 
 @app.route('/api/get-products', methods=['GET'])
 def get_products():

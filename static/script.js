@@ -847,6 +847,57 @@ window.addEventListener('load', function () {
         loadProductsForDelete();
     }
 });
+ 
+// ============================================
+// ADMIN - BULK IMPORT PRODUCTS FROM CSV
+// ============================================
+function importProducts() {
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        showNotification('Please choose a CSV file first! ⚠️', 'warning');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Importing...';
+
+    fetch('/api/import-products', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            if (data.errors && data.errors.length > 0) {
+                console.log('Import errors:', data.errors);
+                setTimeout(() => {
+                    alert('Some rows failed:\n\n' + data.errors.join('\n'));
+                }, 500);
+            }
+            fileInput.value = '';
+            if (typeof loadProductsForDelete === 'function') {
+                loadProductsForDelete();
+            }
+        } else {
+            showNotification(data.message || 'Import failed.', 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Could not connect to server.', 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    });
+}
 
 // ============================================
 // SMOOTH SCROLL FOR NAV LINKS

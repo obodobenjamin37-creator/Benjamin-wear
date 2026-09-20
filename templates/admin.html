@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2024z">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2025a">
     <style>
         body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 40px; }
         .admin-container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -50,8 +50,32 @@
         </select>
     </div>
 
-            <button type="button" onclick="addProduct()">Add Product</button>
+                        <button type="button" onclick="addProduct()">Add Product</button>
         </form>
+
+        <h2 style="margin-top: 40px; text-align: center;">Bulk Import Products</h2>
+
+        <div style="text-align: center; margin-bottom: 15px;">
+            <a href="/static/product_template.csv" download 
+               style="color: #0056b3; font-weight: 600; text-decoration: underline; font-size: 14px;">
+                📥 Download CSV Template
+            </a>
+        </div>
+
+        <div class="form-group">
+            <label for="csvFile">Choose CSV File</label>
+            <input type="file" id="csvFile" accept=".csv">
+        </div>
+
+        <button type="button" onclick="importProducts()" 
+                style="background: #28a745;">
+            📤 Upload & Import
+        </button>
+
+        <p style="text-align: center; font-size: 13px; color: #666; margin-top: 15px;">
+            File must be in CSV format. Column order: 
+            <strong>name, price, image, category, badge</strong>
+        </p>
 
         <h2 style="margin-top: 40px; text-align: center;">Delete Product</h2>
         <div id="productList"></div>
@@ -98,6 +122,6 @@
     </div>
 </footer>
 
-    <script src="/static/script.js?v=2024z"></script>
+    <script src="/static/script.js?v=2025a"></script>
 </body>
 </html>
