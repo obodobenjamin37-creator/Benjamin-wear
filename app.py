@@ -592,6 +592,35 @@ def forgot_password():
 
 
 # ============================================
+# TEMPORARY SETUP ROUTE (delete after use!)
+# ============================================
+@app.route('/setup-now-<secret>')
+def setup_now(secret):
+    """One-time setup: creates tables + makes user admin. DELETE after use."""
+    if secret != 'benjamin-setup-2026':
+        return "Not found", 404
+
+    try:
+        # 1. Create all tables
+        db.create_all()
+        result = "✅ Tables created.\n"
+
+        # 2. Make user ID 1 an admin (assuming you signed up already)
+        user = User.query.filter_by(id=1).first()
+        if user:
+            user.is_admin = True
+            db.session.commit()
+            result += f"✅ {user.username} is now an ADMIN.\n"
+        else:
+            result += "⚠️ No user with ID 1 yet. Sign up first, then refresh this page.\n"
+
+        return result
+
+    except Exception as e:
+        return f"❌ Error: {str(e)}", 500
+
+
+# ============================================
 # ERROR HANDLING
 # ============================================
 @app.errorhandler(404)
