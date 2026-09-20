@@ -590,29 +590,43 @@ def forgot_password():
     except Exception as e:
         return jsonify({'success': False, 'message': 'Error processing request'}), 400
 
-
 # ============================================
 # TEMPORARY SETUP ROUTE (delete after use!)
 # ============================================
 @app.route('/setup-now-<secret>')
 def setup_now(secret):
-    """One-time setup: creates tables + makes user admin. DELETE after use."""
+    """One-time setup: creates tables + promotes email to admin. DELETE after use."""
     if secret != 'benjamin-setup-2026':
         return "Not found", 404
 
     try:
         # 1. Create all tables
         db.create_all()
-        result = "✅ Tables created.\n"
+        result = "✅ Tables created.<br><br>"
 
-        # 2. Make user ID 1 an admin (assuming you signed up already)
-        user = User.query.filter_by(id=1).first()
+        # 2. List all users in the database
+        users = User.query.all()
+        result += f"<strong>Total users in DB:</strong> {len(users)}<br><br>"
+
+        if users:
+            result += "<strong>Existing users:</strong><br>"
+            for u in users:
+                admin_status = "👑 ADMIN" if u.is_admin else "user"
+                result += f"&nbsp;&nbsp;ID {u.id}: {u.username} [{admin_status}]<br>"
+        else:
+            result += "⚠️ No users found. Sign up first, then refresh this page.<br>"
+
+        # 3. Promote a specific email to admin
+        # CHANGE THIS TO YOUR ACTUAL EMAIL:
+        TARGET_EMAIL = "obodobenjamin37@gmail.com"
+
+        user = User.query.filter_by(username=TARGET_EMAIL).first()
         if user:
             user.is_admin = True
             db.session.commit()
-            result += f"✅ {user.username} is now an ADMIN.\n"
+            result += f"<br>✅ <strong>{TARGET_EMAIL}</strong> is now an ADMIN."
         else:
-            result += "⚠️ No user with ID 1 yet. Sign up first, then refresh this page.\n"
+            result += f"<br>⚠️ User <strong>{TARGET_EMAIL}</strong> not found. Please sign up with that email first, then refresh."
 
         return result
 
