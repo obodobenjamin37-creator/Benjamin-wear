@@ -1458,32 +1458,62 @@ footer::before {
     gap: 0.8rem;
   }
 
-   .hero {
-        padding: 3rem 0.75rem;
-        min-height: 45vh;
-    }
+  .hero {
+    padding: 3rem 0.75rem;
+    min-height: 45vh;
+  }
 
-    .hero p {
-        font-size: 0.95rem;
-    }
-
+  .hero p {
+    font-size: 0.95rem;
+  }
 
   .hero h1 {
     font-size: 2rem;
   }
 
-.product-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-}
+  /* 3 items per row instead of 2 */
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 8px; /* Smaller gap to fit 3 items */
+  }
 
-.product-card img {
-    height: 160px;
-}
+  /* Smaller image height */
+  .product-card img {
+    height: 110px; 
+  }
 
-.product-card h3 {
-    font-size: 1rem;
-  }  
+  /* Smaller text and padding */
+  .product-card {
+    padding-bottom: 0.8rem;
+  }
+
+  .product-card h3 {
+    font-size: 0.8rem;
+    margin: 0.5rem 0 0.2rem;
+    padding: 0 0.3rem; /* Prevents text from touching edges */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adds "..." if the title is too long */
+  }
+
+  .price {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Make the Add to Cart button smaller */
+  .btn-add {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  /* Smaller badges */
+  .product-badge {
+    top: 6px;
+    left: 6px;
+    font-size: 0.55rem;
+    padding: 2px 6px;
+  }
 }
 
    
