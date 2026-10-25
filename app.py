@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 import json
 import os
 import csv
@@ -135,8 +135,6 @@ def verify_paystack_payment(reference):
 # ============================================
 @app.route('/')
 def home():
-    if 'user' not in session:
-        return redirect(url_for('login_page'))
     products = Product.query.all()
     exchange_rate = get_exchange_rate()
     converted_products = []
@@ -145,6 +143,14 @@ def home():
         converted_products.append(product)
     return render_template('index.html', products=converted_products, exchange_rate=exchange_rate)
 
+
+@app.route('/robots.txt')
+def serve_robots():
+    return send_from_directory(app.static_folder, 'robots.txt')
+
+@app.route('/sitemap.xml')
+def serve_sitemap():
+    return send_from_directory(app.static_folder, 'sitemap.xml')
 
 @app.route('/search')
 def search():
@@ -187,8 +193,6 @@ def admin():
 
 @app.route('/product/<int:id>')
 def product_page(id):
-    if 'user' not in session:
-        return redirect(url_for('login_page'))
     product = Product.query.get(id)
     if not product:
         return "Product not found", 404
@@ -589,6 +593,7 @@ def forgot_password():
         return jsonify({'success': True, 'message': 'Password reset link sent to your email! 📧'})
     except Exception as e:
         return jsonify({'success': False, 'message': 'Error processing request'}), 400
+
 
 
 # ============================================
